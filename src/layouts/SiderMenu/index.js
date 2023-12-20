@@ -10,9 +10,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { observer } from 'mobx-react';
 import { Layout, Menu, Row } from 'antd';
-import { RocketTwoTone } from '@ant-design/icons';
+// import { RocketTwoTone } from '@ant-design/icons';
 
-import { appStores } from '@/stores';
+// import { appStores } from '@/stores';
 import './style.less';
 
 const renderMenuItem = (target) =>
@@ -49,7 +49,7 @@ const renderMenuItem = (target) =>
 const SiderMenu = ({ routes }) => {
   const { pathname } = useLocation();
   // console.log(pathname);
-  const { globalStore } = appStores();
+  // const { globalStore } = appStores();
   const [openKeys, setOpenKeys] = useState([]);
 
   useEffect(() => {
@@ -67,26 +67,37 @@ const SiderMenu = ({ routes }) => {
   };
 
   return (
-    <Layout.Sider trigger={null} collapsible collapsed={globalStore.collapsed} className="main-left-slider">
-      <Link to="/">
-        <Row type="flex" align="middle" className="main-logo">
-          {/* <Icon type="car" style={{ color: '#13e367' }} /> */}
-          <RocketTwoTone twoToneColor="#13e367" />
-          {!globalStore.collapsed && <span className="app-name">{globalStore.appTitle}</span>}
-        </Row>
-      </Link>
-      <Menu
-        mode="inline"
-        theme="dark"
-        style={{ paddingLeft: 0, marginBottom: 0 }}
-        className="main-menu"
-        openKeys={openKeys}
-        onOpenChange={onOpenChange}
-        selectedKeys={getSelectedKeys}
-      >
+    // <Layout.Sider trigger={null} collapsible collapsed={globalStore.collapsed} className="main-left-slider">
+    //   <Link to="/">
+    //     <Row type="flex" align="middle" className="main-logo">
+    //       {/* <Icon type="car" style={{ color: '#13e367' }} /> */}
+    //       <RocketTwoTone twoToneColor="#13e367" />
+    //       {!globalStore.collapsed && <span className="app-name">{globalStore.appTitle}</span>}
+    //     </Row>
+    //   </Link>
+    //   <Menu
+    //     mode="inline"
+    //     theme="dark"
+    //     style={{ paddingLeft: 0, marginBottom: 0 }}
+    //     className="main-menu"
+    //     openKeys={openKeys}
+    //     onOpenChange={onOpenChange}
+    //     selectedKeys={getSelectedKeys}
+    //   >
+    //     {renderMenuItem(routes)}
+    //   </Menu>
+    // </Layout.Sider>
+    <Menu
+      mode="horizontal"
+      theme="light"
+      style={{ paddingLeft: 0, marginBottom: 0, marginLeft: 'auto', marginRight: 'auto', width: 1000 }}
+      className="main-menu"
+      openKeys={openKeys}
+      onOpenChange={onOpenChange}
+      selectedKeys={getSelectedKeys}
+    >
         {renderMenuItem(routes)}
-      </Menu>
-    </Layout.Sider>
+    </Menu>
   );
 };
 

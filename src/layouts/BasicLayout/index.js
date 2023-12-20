@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout } from 'antd';
 import SiderMenu from '../SiderMenu';
-import MainHeader from '../MainHeader';
+// import MainHeader from '../MainHeader';
 // import MainFooter from "../MainFooter";
 
 import './style.less';
@@ -11,7 +11,7 @@ const BasicLayout = ({ route, children }) => (
     <SiderMenu routes={route.childRoutes} />
     {/* 左侧菜单导航 */}
     <Layout className="main-layout-right">
-      <MainHeader />
+      {/* <MainHeader /> */}
       <Layout.Content className="main-layout-content">
         {children}
         {/* <MainFooter></MainFooter> */}

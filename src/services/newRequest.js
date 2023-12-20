@@ -39,18 +39,21 @@ const instance = axios.create({
 // 实例添加请求拦截器
 instance.interceptors.request.use(
   (config) => {
+    console.log('request config', config);
     // 在发送请求之前做处理...
     config.headers = Object.assign(
-      config.method === 'get'
-        ? {
-            Accept: 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8',
-          }
-        : {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          },
+      // config.method === 'get'
+      //   ? {
+      //       Accept: 'application/json',
+      //       'Content-Type': 'application/json; charset=UTF-8',
+      //     }
+      //   : {
+      //       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      //       // 'Content-Type': 'application/json; charset=UTF-8',
+      //     },
       config.headers,
     );
+    // if (config.method === 'get') {}
     // config.headers.token = sessionStorage.getItem(`${projectPrefix}_token_`);
 
     if (config.method === 'post') {
@@ -126,10 +129,10 @@ const request = async (opt) => {
   try {
     const res = await instance(options);
     // console.log(res);
-    if (!res.success && options.ifHandleError) {
-      // 自定义参数，是否允许全局提示错误信息
-      message.error(res.message || '请求处理失败！');
-    }
+    // if (!res.success && options.ifHandleError) {
+    //   // 自定义参数，是否允许全局提示错误信息
+    //   message.error(res.message || '请求处理失败！');
+    // }
     return res;
   } catch (err) {
     if (options.ifHandleError) {

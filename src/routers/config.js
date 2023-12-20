@@ -1,13 +1,15 @@
 import React, { lazy } from 'react';
 import {
-  HomeOutlined,
-  SettingFilled,
-  SmileOutlined,
-  FormOutlined,
-  UserOutlined,
-  StarOutlined,
-  WarningOutlined,
-  FrownOutlined,
+  // HomeOutlined,
+  // SettingFilled,
+  // SmileOutlined,
+  // FormOutlined,
+  // UserOutlined,
+  // StarOutlined,
+  // WarningOutlined,
+  // FrownOutlined,
+  ReadOutlined,
+  FileSearchOutlined
 } from '@ant-design/icons';
 
 import BasicLayout from '@/layouts/BasicLayout';
@@ -30,75 +32,75 @@ const config = [
         component: BasicLayout, // 基本布局
         childRoutes: [
           {
-            path: '/welcome',
-            name: '欢迎页',
-            icon: <SmileOutlined />,
-            component: lazy(() => import('@/pages/Welcome')),
+            path: '/knowledgeSearch',
+            name: '知识检索',
+            icon: <FileSearchOutlined />,
+            component: lazy(() => import('@/pages/KnowledgeSearchPage')),
           },
           {
-            path: '/home',
-            name: 'home主页',
-            icon: <HomeOutlined />,
-            component: lazy(() => import('@/pages/Home')),
+            path: '/knowledgeQA',
+            name: '知识问答',
+            icon: <ReadOutlined />,
+            component: lazy(() => import('@/pages/KnowledgeQA')),
           },
-          {
-            path: '/formDemo',
-            name: '表单演示',
-            icon: <FormOutlined />,
-            component: lazy(() => import('@/pages/FormDemo')),
-          },
-          {
-            path: '/system',
-            name: '系统管理',
-            icon: <SettingFilled />,
-            childRoutes: [
-              {
-                path: '/system/groovySet',
-                name: 'Groovy脚本管理',
-                component: lazy(() => import('@/pages/System/GroovySet')),
-              },
-              {
-                path: '/system/user',
-                name: '用户配置',
-                icon: <UserOutlined />,
-                component: lazy(() => import('@/pages/System/User')),
-              },
-              {
-                path: '/system/star',
-                name: '个人中心',
-                icon: <StarOutlined />,
-                component: lazy(() => import('@/pages/System/Star')),
-              },
-            ],
-          },
-          {
-            path: '/exception',
-            name: '异常页',
-            // exact: true,
-            icon: <WarningOutlined />,
-            childRoutes: [
-              {
-                path: '/exception/403',
-                name: '403',
-                icon: <FrownOutlined />,
-                component: lazy(() => import('@/pages/Exception/403')),
-              },
-              {
-                path: '/exception/404',
-                name: '404',
-                exact: true,
-                icon: <FrownOutlined />,
-                component: lazy(() => import('@/pages/Exception/404')),
-              },
-              {
-                path: '/exception/500',
-                name: '500',
-                icon: <FrownOutlined />,
-                component: lazy(() => import('@/pages/Exception/500')),
-              },
-            ],
-          },
-          { path: '/', exact: true, redirect: '/welcome' },
+          // {
+          //   path: '/formDemo',
+          //   name: '表单演示',
+          //   icon: <FormOutlined />,
+          //   component: lazy(() => import('@/pages/FormDemo')),
+          // },
+          // {
+          //   path: '/system',
+          //   name: '系统管理',
+          //   icon: <SettingFilled />,
+          //   childRoutes: [
+          //     {
+          //       path: '/system/groovySet',
+          //       name: 'Groovy脚本管理',
+          //       component: lazy(() => import('@/pages/System/GroovySet')),
+          //     },
+          //     {
+          //       path: '/system/user',
+          //       name: '用户配置',
+          //       icon: <UserOutlined />,
+          //       component: lazy(() => import('@/pages/System/User')),
+          //     },
+          //     {
+          //       path: '/system/star',
+          //       name: '个人中心',
+          //       icon: <StarOutlined />,
+          //       component: lazy(() => import('@/pages/System/Star')),
+          //     },
+          //   ],
+          // },
+          // {
+          //   path: '/exception',
+          //   name: '异常页',
+          //   // exact: true,
+          //   icon: <WarningOutlined />,
+          //   childRoutes: [
+          //     {
+          //       path: '/exception/403',
+          //       name: '403',
+          //       icon: <FrownOutlined />,
+          //       component: lazy(() => import('@/pages/Exception/403')),
+          //     },
+          //     {
+          //       path: '/exception/404',
+          //       name: '404',
+          //       exact: true,
+          //       icon: <FrownOutlined />,
+          //       component: lazy(() => import('@/pages/Exception/404')),
+          //     },
+          //     {
+          //       path: '/exception/500',
+          //       name: '500',
+          //       icon: <FrownOutlined />,
+          //       component: lazy(() => import('@/pages/Exception/500')),
+          //     },
+          //   ],
+          // },
+          { path: '/', exact: true, redirect: '/knowledgeSearch' },
           { path: '*', exact: true, redirect: '/exception/404' },
         ],
       },

@@ -39,5 +39,18 @@ module.exports = {
     'jsx-a11y/click-events-have-key-events': 0,
     'jsx-a11y/anchor-is-valid': 0,
     // 'comma-dangle': ['error', 'always-multiline'],
+    // 'import/extensions': 0,
+  },
+  settings: {
+    'import/extensions': ['.js', '.jsx'],
+    "import/resolver": { 
+      alias: [
+          ["@", "./src"]
+      ], 
+  }, 
+  },
+
+  parserOptions: {
+    ecmaFeatures: { jsx: true },
   },
 };

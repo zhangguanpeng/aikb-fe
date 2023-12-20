@@ -1,8 +1,21 @@
+const path = require('path');
 const webpack = require('webpack');
 const {merge} = require('webpack-merge');
+// const apiMocker = require('mocker-api');
 // const path = require('path');
+const apiMocker = require('webpack-api-mocker');
 
 const commonConfig = require('./webpack.common');
+// const mocker = require('./mocker');
+// require('../mock/index');
+
+// console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+
+
+// if (process.env.NODE_ENV === 'mock') {
+//   // import "./mock/index.js"
+//   require('../mock/index');
+// }
 
 module.exports = merge(commonConfig, {
   mode: 'development',
@@ -15,13 +28,18 @@ module.exports = merge(commonConfig, {
     compress: true,
     // 接口代理转发
     proxy: {
-      '/testapi': {
-        target: 'https://www.easy-mock.com/mock/5dff0acd5b188e66c6e07329/react-template',
+      '/aikb/': {
+        target: 'http://120.26.100.206:8001',
         changeOrigin: true,
-        secure: false,
-        pathRewrite: { '^/testapi': '' },
+        pathRewrite: { '^': '' },
       },
     },
+    onBeforeSetupMiddleware: (devServer) => {
+        apiMocker(devServer.app, path.resolve('./mock/index.js'), {
+            // 'GET /api/users/list': 'http://localhost:3000',
+            // 'GET /api/userinfo/:id': 'http://localhost:3000',
+        })
+    }
   },
   plugins: [ new webpack.HotModuleReplacementPlugin()],
   devtool: 'eval-source-map',
