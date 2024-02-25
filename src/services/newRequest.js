@@ -56,7 +56,7 @@ instance.interceptors.request.use(
     // if (config.method === 'get') {}
     // config.headers.token = sessionStorage.getItem(`${projectPrefix}_token_`);
 
-    if (config.method === 'post') {
+    if (config.method === 'post' || config.method === 'put') {
       const contentType = config.headers['Content-Type'];
       // 根据Content-Type转换data格式
       if (contentType) {

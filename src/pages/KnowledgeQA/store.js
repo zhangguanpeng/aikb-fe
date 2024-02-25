@@ -144,15 +144,16 @@ class HomeStore {
 	}
 
 	@action.bound
-	async fetchSearchChatContent(chatId) {
+	async fetchSearchChatContent(params) {
 		try {
 			this.loading = true;
 
 			const res = await request({
-				url: `/aikb/v1/chat/${chatId}`,
+				url: `/aikb/v1/chat/${this.currentChatId}`,
 				method: 'put',
+				data: params,
 				headers: {
-					'Content-Type': 'form-data',
+					'Content-Type': 'application/json; charset=UTF-8',
 				},
 			});
 

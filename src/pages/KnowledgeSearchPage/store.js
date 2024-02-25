@@ -82,6 +82,9 @@ class CompanySetStore {
 
             console.log('知识检索res', res);
 
+            if (!res.payload) {
+                return;
+            }
             // if (res.success) {
             // const resData = res.payload || {};
             // this.knowledgeData = resData;

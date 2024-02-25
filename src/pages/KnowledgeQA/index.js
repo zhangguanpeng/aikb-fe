@@ -39,10 +39,10 @@ const KnowledgeQA = () => {
 
 	const getSearchAnswer = () => {
 		const params = {
-			title: 'hello',
+			title: searchText,
 		};
 
-		fetchCreateChat(params);
+		fetchSearchChatContent(params);
 
 		// @ts-ignore
 		// pageStore.chatList = [...chatList, askInfo];
