@@ -39,7 +39,8 @@ const KnowledgeQA = () => {
 
 	const getSearchAnswer = () => {
 		const params = {
-			title: searchText,
+			text: searchText,
+			imageList: []
 		};
 
 		fetchSearchChatContent(params);

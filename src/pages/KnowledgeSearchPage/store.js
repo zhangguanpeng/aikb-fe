@@ -71,6 +71,7 @@ class CompanySetStore {
     async fetchKnowledgeData(documentIds, text) {
         try {
             this.loading = true;
+            this.knowledgeData = [];
             const res = await request({
                 url: '/aikb/v1/search',
                 method: 'post',
