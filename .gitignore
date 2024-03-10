@@ -17,6 +17,7 @@ package-lock.json
 
 # Output of 'npm pack'
 *.tgz
+*.zip
 
 .env
 .env.test

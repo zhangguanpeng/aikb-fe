@@ -16,7 +16,8 @@ const KnowledgeQA = () => {
 	const [addChatModalForm] = Form.useForm();
 
 	const {
-		chatList, fetchChatHistoryData, fetchCreateChat, fetchDeleteChat, fetchSearchChatContent, fetchChatList
+		chatList, fetchChatHistoryData, fetchCreateChat, fetchDeleteChat, fetchSearchChatContent, fetchChatList,
+		chatHistoryData
 	} = pageStore;
 
 	const handleInputChange = (e) => {
@@ -44,6 +45,7 @@ const KnowledgeQA = () => {
 		};
 
 		fetchSearchChatContent(params);
+		setSearchText('');
 
 		// @ts-ignore
 		// pageStore.chatList = [...chatList, askInfo];
@@ -82,7 +84,7 @@ const KnowledgeQA = () => {
 			chatId: selectedItem.id,
 			page: 0,
 			size: '',
-			sort: 'createdDate,desc'
+			sort: 'createdDate,asc'
 		};
 		fetchChatHistoryData(params);
 	}
@@ -93,11 +95,11 @@ const KnowledgeQA = () => {
 		getChatList();
 	}
 
-	const handleSearchChatContent = () => {
-		const params = 1;
+	// const handleSearchChatContent = () => {
+	// 	const params = 1;
 
-		fetchDeleteChat(params);
-	}
+	// 	fetchDeleteChat(params);
+	// }
 
 	return (
 		<div className="page-knowledge-qa">
@@ -112,7 +114,7 @@ const KnowledgeQA = () => {
 							<span>{chatItem.title}</span>
 							<DeleteOutlined
 								onClick={() => { handleDeleteChat(chatItem) }}
-								style={{ fontSize: '10px' }}
+								style={{ fontSize: '13px', color: 'red' }}
 							/>
 						</div>
 					))
@@ -122,21 +124,27 @@ const KnowledgeQA = () => {
 				<div className='knowledge-content'>
 					<div className="content">
 						<div className="mesage-box">
-							{/* {chatList.map((item, index) =>
-								item.type === 'ask' ? (
-									<div className="ask-item" key={index}>
-										<div className="message-item">问：{item.text}？</div>
-									</div>
+							{chatHistoryData.map((item, index) =>
+								item.role === 'USER' ? (
+									<>
+										{
+											item.content.text ? (
+												<div className="ask-item" key={index}>
+													<div className="ask-message-item">我：{item.content.text}？</div>
+												</div>
+											) : null
+										}
+									</>
 								) : (
 									<div className="answer-item" key={index}>
-										<div className="message-item">答：{item.text}</div>
+										<div className="anwser-message-item">小助手：{item.content.text}</div>
 									</div>
 								),
-							)} */}
+							)}
 						</div>
 						{/* <Input size="large" placeholder="请输入问题" onChange={handleInputChange} /> */}
 						<Space.Compact size="large" style={{ width: '100%' }}>
-							<Input placeholder="请输入要查询的问题" onChange={handleInputChange} />
+							<Input placeholder="请输入要查询的问题" onChange={handleInputChange} value={searchText} />
 							<Button type="primary" onClick={getSearchAnswer}>
 								发送
 							</Button>

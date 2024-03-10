@@ -62,7 +62,7 @@ class HomeStore {
 				data: params,
 			});
 
-			console.log('文本搜索res', res);
+			console.log('聊天历史res', res);
 			const { payload = [] } = res;
 			const anwserInfo = {
 				text: payload.map((item) => item.content),
@@ -76,6 +76,7 @@ class HomeStore {
 		}
 	}
 
+	// 获取会话列表
 	@action.bound
 	async fetchChatList(params) {
 		try {
@@ -92,6 +93,15 @@ class HomeStore {
 				if (index === 0) {
 					newChatItem.isActive = true;
 					this.currentChatId = newChatItem.id;
+
+					// 获取当前会话的聊天记录
+					const chatHistoryParams = {
+						chatId: newChatItem.id,
+						page: 0,
+						size: '',
+						sort: 'createdDate,asc'
+					};
+					this.fetchChatHistoryData(chatHistoryParams);
 				} else {
 					newChatItem.isActive = false;
 				}
@@ -136,6 +146,14 @@ class HomeStore {
 				},
 			});
 
+			const params = {
+				chatId: '',
+				page: 0,
+				size: '',
+				sort: 'createdDate,desc'
+			};
+			this.fetchChatList(params);
+
 			console.log('删除会话res', res);
 			this.loading = false;
 		} catch (error) {
@@ -148,7 +166,7 @@ class HomeStore {
 		try {
 			this.loading = true;
 
-			const res = await request({
+			await request({
 				url: `/aikb/v1/chat/${this.currentChatId}`,
 				method: 'put',
 				data: params,
@@ -157,28 +175,19 @@ class HomeStore {
 				},
 			});
 
-			console.log('对话搜索res', res);
+			// 获取当前会话的聊天记录
+			const chatHistoryParams = {
+				chatId: this.currentChatId,
+				page: 0,
+				size: '',
+				sort: 'createdDate,desc'
+			};
+			this.fetchChatHistoryData(chatHistoryParams);
+
 			this.loading = false;
 		} catch (error) {
 			//
 		}
-	}
-
-	// 列表数据
-	@action.bound
-	async qryTableDate(page = 1, size = 10) {
-		this.loading = true;
-		const res = await request({
-			url: '/list',
-			method: 'post',
-			data: { page, size },
-		});
-
-		if (res.success) {
-			const resData = res.data || {};
-			console.log(resData);
-		}
-		this.loading = false;
 	}
 }
 

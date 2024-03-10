@@ -56,6 +56,8 @@ class CompanySetStore {
         gmtEnd: dayjs(new Date()).format('YYYY-MM-DD'),
     };
 
+    @observable searchText = '';
+
     @computed get modalTitle() {
         let res = '项目';
         if (this.modalType === 'edit') {
@@ -71,6 +73,7 @@ class CompanySetStore {
     async fetchKnowledgeData(documentIds, text) {
         try {
             this.loading = true;
+            this.searchText = text;
             this.knowledgeData = [];
             const res = await request({
                 url: '/aikb/v1/search',
@@ -86,20 +89,14 @@ class CompanySetStore {
             if (!res.payload) {
                 return;
             }
-            // if (res.success) {
-            // const resData = res.payload || {};
-            // this.knowledgeData = resData;
-            // this.pagination.total = resData.total;
-            // this.pagination.currentPage = page;
-            // this.pagination.pageSize = size;
-            // }
+
             const resData = res.payload || {};
             this.knowledgeData = resData;
             this.loading = false;
         } catch (error) {
             console.log('获取知识接口错误', error);
+            this.loading = false;
         }
-
     }
 
     // 删除
