@@ -180,7 +180,7 @@ class HomeStore {
 				chatId: this.currentChatId,
 				page: 0,
 				size: '',
-				sort: 'createdDate,desc'
+				sort: 'createdDate,asc'
 			};
 			this.fetchChatHistoryData(chatHistoryParams);
 

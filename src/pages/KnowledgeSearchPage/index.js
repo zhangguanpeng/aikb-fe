@@ -63,7 +63,10 @@ const KnowledgeSearchPage = () => {
 									reference.map((referenceItem, index) => (
 										<div className='item' key={index}>
 											<div className='head'>
-												<div className='text1'>{`检索文档片段${index+1}`}</div>
+												<div className='text1-box'>
+													<span className='text1'>{`检索文档片段${index+1}`}</span>
+													<span className='text1'>{`相关性：${referenceItem.score}`}</span>
+												</div>
 												<div>
 													{/* <span className='text1'>文档：</span> */}
 													<a onClick={() => { handleDownloadFile(referenceItem.docId) }}>{referenceItem.title}</a>
