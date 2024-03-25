@@ -15,7 +15,7 @@ let inError = false;
 // 创建axios实例
 const instance = axios.create({
   // baseURL: process.env.BASE_URL,
-  timeout: 15000, // 请求超时时间
+  timeout: 60000, // 请求超时时间
   // `transformRequest` 允许在向服务器发送前，修改请求数据
   transformRequest: [
     function (data) {
@@ -126,21 +126,23 @@ const request = async (opt) => {
   };
   // 匹配接口前缀 开发环境则通过proxy配置转发请求； 生产环境根据实际配置
   options.baseURL = autoMatch(options.prefix);
-  try {
-    const res = await instance(options);
-    // console.log(res);
-    // if (!res.success && options.ifHandleError) {
-    //   // 自定义参数，是否允许全局提示错误信息
-    //   message.error(res.message || '请求处理失败！');
-    // }
-    return res;
-  } catch (err) {
-    if (options.ifHandleError) {
-      // 自定义参数，是否允许全局提示错误信息
-      message.error(err.message || err.msg || '请求处理失败！');
-    }
-    return err;
-  }
+  const res = await instance(options);
+  return res;
+  // try {
+  //   const res = await instance(options);
+  //   // console.log(res);
+  //   // if (!res.success && options.ifHandleError) {
+  //   //   // 自定义参数，是否允许全局提示错误信息
+  //   //   message.error(res.message || '请求处理失败！');
+  //   // }
+  //   return res;
+  // } catch (err) {
+  //   if (options.ifHandleError) {
+  //     // 自定义参数，是否允许全局提示错误信息
+  //     message.error(err.message || err.msg || '请求处理失败！');
+  //   }
+  //   return err;
+  // }
 };
 
 export default request;
