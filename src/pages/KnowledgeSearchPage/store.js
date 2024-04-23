@@ -87,12 +87,13 @@ class CompanySetStore {
             console.log('知识检索res', res);
             
 
-            const regex = /^2/;
+            // const regex = /^2/;
 
-            if (!regex.test(res.status)) {
-                // this.loading = false;
-                throw new Error(res.message);
-            }
+            // if (!regex.test(res.status)) {
+            //     // this.loading = false;
+            //     console.log('status', res.status);
+            //     throw new Error(res.message);
+            // }
 
             if (!res.payload) {
                 return;
