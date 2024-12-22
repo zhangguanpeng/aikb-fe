@@ -1,0 +1,186 @@
+.new-chat-page {
+    width: 800px;
+    height: 100%;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+
+    .head {
+        height: 50px;
+        margin-bottom: 20px;
+
+        .chat-name {
+            text-align: center;
+            height: 36px;
+            line-height: 36px;
+
+            .title {
+                padding: 0px 5px;
+            }
+
+            .edit-icon {
+                cursor: pointer;
+            }
+        }
+
+        .reference-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            padding: 5px 5px 3px 5px;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #4993CB;
+            text-align: center;
+
+            &:hover {
+                background-color: rgba(73, 147, 203, 0.1);
+            }
+
+            .text {
+                font-size: 12px;
+            }
+        }
+    }
+
+    .content {
+        flex: 1;
+        overflow-y: auto;
+
+        .ask-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+
+            .anwser-item-avatar {
+                width: 40px;
+            }
+
+            .ask-item-text {
+                margin-right: 10px;
+                padding: 15px 20px;
+                background-color: #4993CB;
+                border-radius: 10px;
+                color: #fff;
+                max-width: 660px;
+            }
+        }
+
+        .anwser-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+
+            .anwser-item-avatar {
+                width: 40px;
+                margin-right: 10px;
+
+                img {
+                    width: 100%;
+                }
+            }
+
+            .anwser-item-content {
+                padding: 15px 20px 20px 20px;
+                background-color: #fff;
+                border-radius: 10px;
+                max-width: 660px;
+
+                .collapse {
+                    background-color: rgb(243, 245, 250);
+                    border-radius: 8px;
+                }
+
+                .text {
+                    margin-top: 10px;
+                }
+            }
+        }
+
+        .recommend-item {
+            padding: 10px 15px;
+            margin-left: 50px;
+            background-color: #fff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e2e2;
+            width: fit-content;
+            cursor: pointer;
+            max-width: 660px;
+
+            &:hover {
+                border: 1px solid #4993CB;
+                background-color: rgba(73, 147, 203, 0.1);
+            }
+        }
+    }
+
+    .ask-input {
+        margin-top: 20px;
+        height: 120px;
+        padding: 15px;
+        border: 1px solid #e2e2e2;
+        border-radius: 10px;
+        background-color: #fff;
+        position: relative;
+
+        input {
+            border: none;
+            font-size: 20px;
+
+            &:hover {
+                border: none;
+            }
+
+            &::placeholder {
+                font-size: 20px;
+            }
+        }
+
+        .btns {
+            position: relative;
+            bottom: -20px;
+            display: flex;
+            justify-content: flex-end;
+
+            .btn-send {
+                cursor: pointer;
+                padding: 8px 6px 3px 8px;
+                border-radius: 8px;
+                
+                &:hover {
+                    background-color: rgba(73, 147, 203, 0.1);
+                }
+            }
+        }
+    }
+}
+
+.page-position {
+    margin: 0 auto;
+}
+
+.page-position-drawer {
+    margin-left: 150px;
+}
+
+.new-chat-drawer {
+    .drawer-markdown-content {
+        padding: 5px;
+        margin-bottom: 20px;
+        background-color: rgb(243, 245, 250);
+        border-radius: 8px;
+
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        img {
+            max-width: 350px;
+        }
+    }
+}

@@ -98,6 +98,8 @@ module.exports = {
     alias: {
       '@': srcDir,
       '@pages': `${srcDir}/pages`,
+      '@assets': `${srcDir}/assets`,
+      "react/jsx-runtime": "react/jsx-runtime.js",
     },
   },
   // optimization: {

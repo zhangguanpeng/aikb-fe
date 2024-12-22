@@ -45,8 +45,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.3.0",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "antd": "^4.9.2",
     "axios": "^0.21.0",
+    "babel-preset-react-app": "^10.0.1",
     "dayjs": "^1.9.7",
     "mobx": "^5.15.0",
     "mobx-react": "^6.1.4",
@@ -54,8 +56,11 @@
     "react": "^17.0.1",
     "react-codemirror": "^1.0.0",
     "react-dom": "^17.0.1",
+    "react-markdown": "^9.0.1",
     "react-router": "^5.2.0",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -8,11 +8,13 @@ import {
   // StarOutlined,
   // WarningOutlined,
   // FrownOutlined,
+  HomeFilled,
   ReadOutlined,
   FileSearchOutlined
 } from '@ant-design/icons';
 
 import BasicLayout from '@/layouts/BasicLayout';
+import BasicLayoutNew from '@/layouts/BasicLayoutNew';
 import BlankLayout from '@/layouts/BlankLayout';
 
 const config = [
@@ -27,9 +29,10 @@ const config = [
         component: lazy(() => import('@/pages/Login')), // 懒加载 路由组件
       },
       {
-        path: '/',
+        path: '/old',
         // exact: true,
         component: BasicLayout, // 基本布局
+        component: BasicLayoutNew, // 基本布局
         childRoutes: [
           {
             path: '/knowledgeSearch',
@@ -100,7 +103,34 @@ const config = [
           //     },
           //   ],
           // },
-          { path: '/', exact: true, redirect: '/knowledgeSearch' },
+          { path: '/old', exact: true, redirect: '/knowledgeSearch' },
+          { path: '*', exact: true, redirect: '/exception/404' },
+        ],
+      },
+      {
+        path: '/',
+        // exact: true,
+        component: BasicLayoutNew, // 基本布局
+        childRoutes: [
+          {
+            path: '/home',
+            name: '首页',
+            icon: <HomeFilled />,
+            component: lazy(() => import('@/pages/Home')),
+          },
+          {
+            path: '/newChat',
+            name: '新建会话',
+            icon: <ReadOutlined />,
+            component: lazy(() => import('@/pages/NewChat')),
+          },
+          {
+            path: '/historyChat',
+            name: '历史会话',
+            icon: <ReadOutlined />,
+            component: lazy(() => import('@/pages/HistoryChat')),
+          },
+          { path: '/', exact: true, redirect: '/home' },
           { path: '*', exact: true, redirect: '/exception/404' },
         ],
       },
