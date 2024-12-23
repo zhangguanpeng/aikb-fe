@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { message, List } from 'antd';
+import { message, List, Spin } from 'antd';
 import { observer } from 'mobx-react';
 import dayjs from 'dayjs';
 import Store from './store';
@@ -7,11 +7,12 @@ import Store from './store';
 import './style.less';
 
 const isBetween = require('dayjs/plugin/isBetween');
+
 dayjs.extend(isBetween);
 
 const HistoryChatPage = () => {
   const newChatStore = useContext(Store);
-  const { historyChatData, fetchHistoryChatList } = newChatStore;
+  const { historyChatData, pageLoading, fetchHistoryChatList } = newChatStore;
 
   const today = dayjs().format('YYYY-MM-DD');
   const yestoday = dayjs(today).subtract(1, 'day').format('YYYY-MM-DD');
@@ -42,6 +43,14 @@ const HistoryChatPage = () => {
   useEffect(() => {
     getHistoryChatList();
   }, []);
+
+  if (pageLoading) {
+    return (
+      <div className="history-chat-page">
+        <Spin size="large" style={{marginTop: '200px'}} />
+      </div>
+    )
+  }
 
   return (
     <div className="history-chat-page">

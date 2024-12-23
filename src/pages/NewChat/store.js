@@ -12,6 +12,8 @@ class NewChatStore {
     title: '',
   };
 
+  @observable pageLoading = false;
+
   // 获取会话列表
 	@action.bound
 	async fetchChatList(params) {
@@ -20,8 +22,8 @@ class NewChatStore {
 				url: '/aikb/v1/chat',
 				method: 'get',
 				params,
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjQ3ZDI0Yjg2YWRiNjQ1NDE4ZTIwMzQxMGE2NGQ1NmMxIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0NzQ0MzgyLCJleHAiOjE3MzQ4NzM5ODJ9.kNFQ-UB2SgM3Q17uWgz1ctiA3ZxCrGWolv264z2uirjwErHJTJ0Sm7AARuWE7wKKPdh2t9Buza97HnnfgntaRQ',
+        		headers: {
+          			'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
 				},
 			});
 
@@ -54,7 +56,7 @@ class NewChatStore {
 	@action.bound
 	async fetchCreateChat(params) {
 		try {
-			this.loading = true;
+			this.pageLoading = true;
 
 			const res = await request({
 				url: '/aikb/v1/chat',
@@ -62,7 +64,7 @@ class NewChatStore {
 				data: params,
 				headers: {
 					'Content-Type': 'application/json; charset=UTF-8',
-          			'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjQ3ZDI0Yjg2YWRiNjQ1NDE4ZTIwMzQxMGE2NGQ1NmMxIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0NzQ0MzgyLCJleHAiOjE3MzQ4NzM5ODJ9.kNFQ-UB2SgM3Q17uWgz1ctiA3ZxCrGWolv264z2uirjwErHJTJ0Sm7AARuWE7wKKPdh2t9Buza97HnnfgntaRQ',
+          			'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
 				},
 			});
 
@@ -74,8 +76,11 @@ class NewChatStore {
 				}
 			};
 
+			this.pageLoading = false;
       		this.currentChat = res.payload;
 			this.chatData = [initChatObj]
+
+			return res.payload;
 			
 		} catch (error) {
 			//
@@ -93,7 +98,7 @@ class NewChatStore {
 				data: params,
 				headers: {
 					'Content-Type': 'application/json; charset=UTF-8',
-					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjQ3ZDI0Yjg2YWRiNjQ1NDE4ZTIwMzQxMGE2NGQ1NmMxIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0NzQ0MzgyLCJleHAiOjE3MzQ4NzM5ODJ9.kNFQ-UB2SgM3Q17uWgz1ctiA3ZxCrGWolv264z2uirjwErHJTJ0Sm7AARuWE7wKKPdh2t9Buza97HnnfgntaRQ',
+					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
 				},
 			});
 

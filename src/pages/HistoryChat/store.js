@@ -7,6 +7,7 @@ import request from '@/services/newRequest';
 
 class HistoryChatStore {
   @observable historyChatData = [];
+
   @observable tableData = [
     {
       ask: null,
@@ -15,6 +16,8 @@ class HistoryChatStore {
       }
     }
   ];
+
+  @observable pageLoading = false;
 
   @observable loading = false;
 
@@ -27,18 +30,20 @@ class HistoryChatStore {
   // 获取会话列表
 	@action.bound
 	async fetchHistoryChatList(params) {
+    this.pageLoading = true;
 		try {
 			const res = await request({
 				url: '/aikb/v1/chat',
 				method: 'get',
 				params,
         headers: {
-					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjQ3ZDI0Yjg2YWRiNjQ1NDE4ZTIwMzQxMGE2NGQ1NmMxIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0NzQ0MzgyLCJleHAiOjE3MzQ4NzM5ODJ9.kNFQ-UB2SgM3Q17uWgz1ctiA3ZxCrGWolv264z2uirjwErHJTJ0Sm7AARuWE7wKKPdh2t9Buza97HnnfgntaRQ',
+					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
 				},
 			});
 
 			console.log('对话历史res', res);
 			const { payload = [] } = res;
+      this.pageLoading = false;
 			this.historyChatData = payload;
 		} catch (error) {
 			//
