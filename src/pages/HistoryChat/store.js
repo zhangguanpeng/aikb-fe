@@ -8,13 +8,15 @@ import request from '@/services/newRequest';
 class HistoryChatStore {
   @observable historyChatData = [];
 
+  @observable historyTopChatData = [];
+
   @observable tableData = [
     {
       ask: null,
       anwser: {
-        text: 'Hi，我是 AI大模型人工智能小助手。很高兴遇见你！有任何疑问都可以在这里获得解答~'
-      }
-    }
+        text: 'Hi，我是 AI大模型人工智能小助手。很高兴遇见你！有任何疑问都可以在这里获得解答~',
+      },
+    },
   ];
 
   @observable pageLoading = false;
@@ -28,31 +30,147 @@ class HistoryChatStore {
   };
 
   // 获取会话列表
-	@action.bound
-	async fetchHistoryChatList(params) {
+  @action.bound
+  async fetchHistoryChatList(params) {
     this.pageLoading = true;
+    try {
+      const res = await request({
+        url: '/aikb/v1/chat',
+        method: 'get',
+        params,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      console.log('对话历史res', res);
+      const { payload = [] } = res;
+      this.pageLoading = false;
+      this.historyChatData = payload;
+    } catch (error) {
+      //
+    }
+  }
+
+  // 获取置顶会话列表
+  @action.bound
+  async fetchHistoryTopChatList(params) {
+    // this.pageLoading = true;
+    try {
+      const res = await request({
+        url: '/aikb/v1/chat',
+        method: 'get',
+        params,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      console.log('对话历史top res', res);
+      const { payload = [] } = res;
+      // this.pageLoading = false;
+      this.historyTopChatData = payload;
+    } catch (error) {
+      //
+    }
+  }
+
+  // 会话置顶
+  @action.bound
+  async fetchChatToTop(id) {
+    // this.pageLoading = true;
+
+    const paramstop = {
+      page: 0,
+      size: 10000,
+      pinToTop: true
+    };
+
+    try {
+      await request({
+        url: `/aikb/v1/chat/${id}/pinToTop`,
+        method: 'put',
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      this.fetchHistoryTopChatList(paramstop);
+      // this.fetchHistoryChatList(params);
+    } catch (error) {
+      //
+    }
+  }
+
+  // aikb/v1/chat/6957
+
+  // 删除会话
+  @action.bound
+  async fetchChatDelete(id) {
+    // this.pageLoading = true;
+    const params = {
+      page: 0,
+      size: 10000,
+      sort: 'createdDate,desc',
+    };
+
+    const paramstop = {
+      page: 0,
+      size: 10000,
+      pinToTop: true
+    };
+
+    try {
+      await request({
+        url: `/aikb/v1/chat/${id}`,
+        method: 'delete',
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      this.fetchHistoryTopChatList(paramstop);
+      this.fetchHistoryChatList(params);
+    } catch (error) {
+      //
+    }
+  }
+
+  @action.bound
+	async fetchEditChatName(params, id) {
+    const listparams = {
+      page: 0,
+      size: 10000,
+      sort: 'createdDate,desc',
+    };
+
+    const toplistparams = {
+      page: 0,
+      size: 10000,
+      pinToTop: true
+    };
 		try {
 			const res = await request({
-				url: '/aikb/v1/chat',
-				method: 'get',
-				params,
-        headers: {
+				url: `/aikb/v1/chat/${id}/chat`,
+				method: 'put',
+				data: params,
+				headers: {
+					'Content-Type': 'application/json; charset=UTF-8',
 					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
 				},
 			});
 
-			console.log('对话历史res', res);
-			const { payload = [] } = res;
-      this.pageLoading = false;
-			this.historyChatData = payload;
+			console.log('修改会话名称res', res);
+      this.fetchHistoryTopChatList(toplistparams);
+      this.fetchHistoryChatList(listparams);
 		} catch (error) {
 			//
 		}
 	}
-
-  
-
-  
 }
 
 export default createContext(new HistoryChatStore());

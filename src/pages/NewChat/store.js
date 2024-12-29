@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { observable, action, computed } from 'mobx';
 import { message } from 'antd';
 import { createContext } from 'react';
@@ -14,102 +15,181 @@ class NewChatStore {
 
   @observable pageLoading = false;
 
+  @observable textReferenceDetailShow = false;
+
+  @observable textReference = [];
+
   // 获取会话列表
-	@action.bound
-	async fetchChatList(params) {
-		try {
-			const res = await request({
-				url: '/aikb/v1/chat',
-				method: 'get',
-				params,
-        		headers: {
-          			'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
-				},
-			});
+  @action.bound
+  async fetchHistoryChatList(params, chatId) {
+    this.pageLoading = true;
+    try {
+      const res = await request({
+        url: '/aikb/v1/chat',
+        method: 'get',
+        params,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
 
-			console.log('对话历史res', res);
-			const { payload = [] } = res;
-			this.chatList = payload.map((chatItem, index) => {
-				const newChatItem = chatItem;
-				if (index === 0) {
-					newChatItem.isActive = true;
-					this.currentChatId = newChatItem.id;
+      console.log('对话历史res', res);
+      const { payload = [] } = res;
+      payload.forEach((chatItem) => {
+        if (String(chatItem.id) === chatId) {
+          this.currentChat = chatItem;
 
-					// 获取当前会话的聊天记录
-					const chatHistoryParams = {
-						chatId: newChatItem.id,
-						page: 0,
-						size: '',
-						sort: 'createdDate,asc'
-					};
-					this.fetchChatHistoryData(chatHistoryParams);
-				} else {
-					newChatItem.isActive = false;
-				}
-				return newChatItem;
-			});
-		} catch (error) {
-			//
+          const chatHistoryParams = {
+            chatId,
+            page: 0,
+            size: 100,
+          };
+
+          this.fetchChatData(chatHistoryParams);
+        }
+      });
+    } catch (error) {
+      //
+    }
+  }
+
+  @action.bound
+  async fetchChatData(params) {
+    try {
+      const res = await request({
+        url: '/aikb/v1/chat/history',
+        method: 'get',
+        params,
+        headers: {
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      console.log('会话数据res', res);
+      const { payload = [] } = res;
+      const chatHistoryData = [];
+      const initChatObj = {
+        ask: null,
+        anwser: {
+          loading: false,
+          textIntro: '',
+          text: 'Hi，我是人工智能小助手。很高兴遇见你！有任何疑问都可以在这里获得解答~',
+          showCollapse: false,
+          textReference: [],
+          recommend: [],
+        },
+      };
+
+      chatHistoryData.push(initChatObj);
+
+	  payload.forEach((chatItem) => {
+		const chatObj = {};
+		if (chatItem.role === "USER") {
+			chatObj.ask = {
+				text: chatItem.content.text
+			};
+			chatObj.anwser = null;
 		}
-	}
 
-	@action.bound
-	async fetchCreateChat(params) {
-		try {
-			this.pageLoading = true;
-
-			const res = await request({
-				url: '/aikb/v1/chat',
-				method: 'post',
-				data: params,
-				headers: {
-					'Content-Type': 'application/json; charset=UTF-8',
-          			'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
-				},
-			});
-
-			console.log('创建会话res', res);
-			const initChatObj = {
-				ask: null,
-				anwser: {
-				  text: 'Hi，我是 AI大模型人工智能小助手。很高兴遇见你！有任何疑问都可以在这里获得解答~'
-				}
+		if (chatItem.role === "ASSISTANT") {
+			const textReference = chatItem.content.refList || [];
+			console.log('chatItem.refList', chatItem.content.refList);
+			chatObj.ask = null;
+			chatObj.anwser = {
+				loading: false,
+				textIntro: `在阅读了大量文件后，我甄选了${textReference.length}份最相关的文件供您参考。`,
+				text: chatItem.content.text,
+				showCollapse: textReference.length > 0,
+				textReference,
+				recommend: [],
 			};
 
-			this.pageLoading = false;
-      		this.currentChat = res.payload;
-			this.chatData = [initChatObj]
-
-			return res.payload;
-			
-		} catch (error) {
-			//
+			this.textReference = textReference;
 		}
-	}
 
-	@action.bound
-	async fetchEditChatName(params) {
-		try {
-			this.loading = true;
+		if (chatItem.role === "QA") {
+			const textReference = chatItem.content.refList || [];
+			console.log('chatItem.refList', chatItem.content.refList);
+			chatObj.ask = null;
+			chatObj.anwser = {
+				loading: false,
+				textIntro: 'AI大模型告诉您：',
+				text: chatItem.content.text,
+				showCollapse: false,
+				textReference,
+				recommend: [],
+			};
 
-			const res = await request({
-				url: `/aikb/v1/chat/${this.currentChat.id}/chat`,
-				method: 'put',
-				data: params,
-				headers: {
-					'Content-Type': 'application/json; charset=UTF-8',
-					'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
-				},
-			});
-
-			console.log('修改会话名称res', res);
-			this.currentChat = res.payload;
-			this.loading = false;
-		} catch (error) {
-			//
+			this.textReference = textReference;
 		}
-	}
-  
+		chatHistoryData.push(chatObj);
+	  });
+	  this.chatData = chatHistoryData;
+      this.pageLoading = false;
+    } catch (error) {
+      //
+    }
+  }
+
+  @action.bound
+  async fetchCreateChat(params) {
+    try {
+      this.pageLoading = true;
+
+      const res = await request({
+        url: '/aikb/v1/chat',
+        method: 'post',
+        data: params,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      console.log('创建会话res', res);
+      const initChatObj = {
+        ask: null,
+        anwser: {
+          text: 'Hi，我是 AI大模型人工智能小助手。很高兴遇见你！有任何疑问都可以在这里获得解答~',
+        },
+      };
+
+      this.pageLoading = false;
+      this.currentChat = res.payload;
+      this.chatData = [initChatObj];
+
+      return res.payload;
+    } catch (error) {
+      //
+    }
+  }
+
+  @action.bound
+  async fetchEditChatName(params) {
+    try {
+      this.loading = true;
+
+      const res = await request({
+        url: `/aikb/v1/chat/${this.currentChat.id}/chat`,
+        method: 'put',
+        data: params,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          Authorization:
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        },
+      });
+
+      console.log('修改会话名称res', res);
+      this.currentChat = res.payload;
+      this.loading = false;
+    } catch (error) {
+      //
+    }
+  }
 }
 
 export default createContext(new NewChatStore());

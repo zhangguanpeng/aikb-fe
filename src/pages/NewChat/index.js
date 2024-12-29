@@ -8,6 +8,7 @@ import CustomCollapse from '@/components/CustomCollapse';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
+import { splitUrl } from '@/utils';
 import logo from '../../assets/images/logo1.png';
 import Store from './store';
 
@@ -15,12 +16,12 @@ import './style.less';
 
 const NewChatPage = () => {
   const [askInputValue, setAskInputValue] = useState('');
-  const [textReference, setTextReference] = useState([]);
-  const [textReferenceDetailShow, setTextReferenceDetailShow] = useState(false);
   const [editChatNameShow, setEditChatNameShow] = useState(false);
   const [newChatName, setNewChatName] = useState('');
   const newChatStore = useContext(Store);
-  const { chatData, currentChat, pageLoading, fetchEditChatName, fetchCreateChat } = newChatStore;
+  const {
+    chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList
+  } = newChatStore;
 
   const chatContentRef = useRef(null);
 
@@ -46,15 +47,27 @@ const NewChatPage = () => {
   // 页面加载获取数据
   useEffect(async () => {
     console.log('history', history);
+    // 先判断是否是从历史会话页面跳转过来
+    const urlParams = splitUrl(window.location.href) || {};
+    console.log('urlParams', urlParams);
+    if (urlParams.id) {
+      const params = {
+        page: 0,
+        size: 10000,
+        sort: 'createdDate,desc',
+      };
+      fetchHistoryChatList(params, urlParams.id);
+      return;
+    }
     const fromHomeValue = history.location.query?.value;
     const params = {
       title: '未命名会话',
     };
 
-    const currentChat = await fetchCreateChat(params);
-    console.log('useEffect currentChat', currentChat);
+    const newChat = await fetchCreateChat(params);
+    console.log('useEffect newChat', newChat);
     if (fromHomeValue) {
-      getChatStream(fromHomeValue, currentChat);
+      getChatStream(fromHomeValue, newChat);
     }
   }, []);
 
@@ -89,7 +102,11 @@ const NewChatPage = () => {
             ) : (
               <>
                 {chatInfo.anwser.textIntro && <CustomCollapse data={chatInfo.anwser} />}
-                <div className="text">{chatInfo.anwser.text}</div>
+                <div className="text">
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {chatInfo.anwser.text}
+                  </ReactMarkdown>
+                </div>
               </>
             )}
           </div>
@@ -98,7 +115,7 @@ const NewChatPage = () => {
       chatElements.push(anwserElement);
     }
 
-    if (chatInfo.anwser.recommend) {
+    if (chatInfo?.anwser?.recommend) {
       const recommendElements = chatInfo.anwser.recommend.map((recommendItem, index) => (
         <div
           className="recommend-item"
@@ -142,8 +159,8 @@ const NewChatPage = () => {
       },
     };
 
-    setTextReference([]);
-    setTextReferenceDetailShow(false);
+    newChatStore.textReference = [];
+    newChatStore.textReferenceDetailShow = false;
     setAskInputValue('');
 
     let delay = 0;
@@ -182,10 +199,21 @@ const NewChatPage = () => {
           if (res.payload.type === 'REFERENCE') {
             const newTextReference = JSON.parse(res.payload.body);
             console.log('newTextReference', newTextReference);
-            setTextReference(newTextReference);
-            setTextReferenceDetailShow(true);
+            newChatStore.textReference = newTextReference;
+            newChatStore.textReferenceDetailShow = true;
             newChatObj.anwser.textIntro = `在阅读了大量文件后，我甄选了${newTextReference.length}份最相关的文件供您参考。`;
             newChatObj.anwser.showCollapse = true;
+            newChatObj.anwser.textReference = newTextReference;
+            // newChatStore.chatData[chatData.length - 1] = newChatObj;
+          }
+
+          if (res.payload.type === 'QA') {
+            const newTextReference = JSON.parse(res.payload.body);
+            console.log('newTextReference', newTextReference);
+            newChatStore.textReference = newTextReference;
+            newChatStore.textReferenceDetailShow = newTextReference.length > 0;
+            newChatObj.anwser.textIntro = 'AI大模型告诉您：';
+            newChatObj.anwser.showCollapse = false;
             newChatObj.anwser.textReference = newTextReference;
             // newChatStore.chatData[chatData.length - 1] = newChatObj;
           }
@@ -239,86 +267,86 @@ const NewChatPage = () => {
   if (pageLoading) {
     return (
       <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
-        <Spin size="large" style={{marginTop: '200px'}} />
+        <Spin size="large" style={{ marginTop: '200px' }} />
       </div>
-    )
+    );
   }
 
   return (
-      <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
-        <div className="head">
-          <div className="chat-name">
-            <span className="title">{currentChat.title}</span>
-            <span
-              className="edit-icon"
-              onClick={() => {
-                setEditChatNameShow(true);
-              }}
-            >
-              <EditOutlined />
-            </span>
-          </div>
-          <div
-            className="reference-btn"
+    <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
+      <div className="head">
+        <div className="chat-name">
+          <span className="title">{currentChat.title}</span>
+          <span
+            className="edit-icon"
             onClick={() => {
-              setTextReferenceDetailShow(true);
+              setEditChatNameShow(true);
             }}
           >
-            <UnorderedListOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
-            <div className="text">引用详情</div>
-          </div>
+            <EditOutlined />
+          </span>
         </div>
-        <div className="content" ref={chatContentRef} id="chat-content">
-          {chatData.map((chatInfo) => renderChatItem(chatInfo))}
-        </div>
-        <div className="ask-input">
-          <Input
-            placeholder="请输入您想问的内容"
-            value={askInputValue}
-            onChange={(e) => {
-              setAskInputValue(e.target.value);
-            }}
-          />
-          <div className="btns">
-            <div
-              className="btn-send"
-              onClick={() => {
-                getChatStream();
-              }}
-            >
-              <SendOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
-            </div>
-          </div>
-        </div>
-
-        <Drawer
-          title="引用内容"
-          placement="right"
-          onClose={() => {
-            setTextReferenceDetailShow(false);
+        <div
+          className="reference-btn"
+          onClick={() => {
+            newChatStore.textReferenceDetailShow = true;
           }}
-          open={textReferenceDetailShow}
-          className="new-chat-drawer"
-          mask={false}
         >
-          {textReference.map((referenceItem, index) => (
-            <div className="drawer-markdown-content" key={index}>
-              <div className="title">{referenceItem.title}</div>
-              <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                {referenceItem.content}
-              </ReactMarkdown>
-            </div>
-          ))}
-        </Drawer>
-        <Modal title="修改名称" open={editChatNameShow} onOk={handleEditChatNameOk} onCancel={handleEditChatNameCancel}>
-          <Input
-            value={newChatName}
-            onChange={(e) => {
-              setNewChatName(e.target.value);
-            }}
-          />
-        </Modal>
+          <UnorderedListOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
+          <div className="text">引用详情</div>
+        </div>
       </div>
+      <div className="content" ref={chatContentRef} id="chat-content">
+        {chatData.map((chatInfo) => renderChatItem(chatInfo))}
+      </div>
+      <div className="ask-input">
+        <Input
+          placeholder="请输入您想问的内容"
+          value={askInputValue}
+          onChange={(e) => {
+            setAskInputValue(e.target.value);
+          }}
+        />
+        <div className="btns">
+          <div
+            className="btn-send"
+            onClick={() => {
+              getChatStream();
+            }}
+          >
+            <SendOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
+          </div>
+        </div>
+      </div>
+
+      <Drawer
+        title="引用内容"
+        placement="right"
+        onClose={() => {
+          newChatStore.textReferenceDetailShow = false;
+        }}
+        open={textReferenceDetailShow}
+        className="new-chat-drawer"
+        mask={false}
+      >
+        {textReference.map((referenceItem, index) => (
+          <div className="drawer-markdown-content" key={index}>
+            <div className="title">{referenceItem.title}</div>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {referenceItem.content}
+            </ReactMarkdown>
+          </div>
+        ))}
+      </Drawer>
+      <Modal title="修改名称" open={editChatNameShow} onOk={handleEditChatNameOk} onCancel={handleEditChatNameCancel}>
+        <Input
+          value={newChatName}
+          onChange={(e) => {
+            setNewChatName(e.target.value);
+          }}
+        />
+      </Modal>
+    </div>
   );
 };
 
