@@ -32,7 +32,6 @@ const config = [
         path: '/old',
         // exact: true,
         component: BasicLayout, // 基本布局
-        component: BasicLayoutNew, // 基本布局
         childRoutes: [
           {
             path: '/knowledgeSearch',

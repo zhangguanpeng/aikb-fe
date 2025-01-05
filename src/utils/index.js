@@ -90,3 +90,8 @@ export function splitUrl(url) {
   }
   return json;
 }
+
+export const storage = {
+  setItem: (key, value) => {window.localStorage.setItem(key, value);},
+  getItem: (key) => window.localStorage.getItem(key)
+};

@@ -11,16 +11,21 @@
     margin: 0 auto;
     display: flex;
     .left {
-      width: 400px;
+      width: 300px;
       // background-color: #fff;
       background: url('~@/assets/images/logo1.png') no-repeat;
       background-size: contain;
-      background-position: center;
-      margin-right: 20px;
+      background-position: center top;
+      margin-right: 50px;
     }
     .right {
-      padding-top: 15px;
+      // padding-top: 15px;
       width: 400px;
+      .title {
+        font-size: 32px;
+        font-weight: 500;
+      }
+
       .form-box {
         height: 300px;
         width: 400px;
@@ -35,19 +40,15 @@
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        .login-form {
-          // position: relative;
-          // padding: 30px;
-          // width: 400px;
-          // box-shadow: 0 0 10px 0 rgb(42, 93, 157);
-          // border-radius: 6px;
-          // background: linear-gradient(rgb(75, 128, 186, 0.86), rgba(192, 207, 230, 0.8));
-        }
         .login-form-forgot {
           float: right;
         }
         .login-form-button {
           width: 100%;
+        }
+
+        .agreement {
+          padding: 0px 5px;
         }
       }
     }

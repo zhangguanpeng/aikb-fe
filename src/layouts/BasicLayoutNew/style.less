@@ -8,7 +8,8 @@
   .content {
     .sider-menu {
       position: absolute;
-      top: 200px;
+      top: 50%;
+      transform: translateY(-50%);
       padding: 20px 0px;
       display: flex;
       flex-direction: column;
@@ -45,5 +46,20 @@
     // border-left: 1px solid #d9d9d9;
     // border-right: 1px solid #d9d9d9;
     // border-bottom: 1px solid #d9d9d9;
+  }
+}
+
+.user-action-popover {
+  width: 100px;
+
+  .popover-item {
+    height: 30px;
+    line-height: 30px;
+    padding-left: 10px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgb(243, 245, 250);
+  }
   }
 }
