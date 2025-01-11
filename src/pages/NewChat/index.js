@@ -8,7 +8,7 @@ import CustomCollapse from '@/components/CustomCollapse';
 import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
-import { splitUrl } from '@/utils';
+import { splitUrl, storage } from '@/utils';
 import logo from '../../assets/images/logo1.png';
 import Store from './store';
 
@@ -172,8 +172,7 @@ const NewChatPage = () => {
       headers: {
         'Content-Type': 'application/json',
         Accept: '*/*, text/event-stream',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIxNTIwIiwidG9rZW5JZCI6IjlhN2RkNWE4ZGYzMDQwYjBiOTg4YTdmNThmOGYxYmZhIiwic3ViIjoi6L-Q6JCl5Y2V5L2N5a6J5YWo6aOO6Zmp566h55CG5bKXIiwiaWF0IjoxNzM0OTIyMDQxLCJleHAiOjE3MzYxMzE2NDF9.hBAxbBGu8J41BMym2jjmAqJVSPaFL2VxKjcoOGW4HLlT6XM85q45IaVYYUv2a_20SMDM2M5SHsRy1wDOpnBvXQ',
+        Authorization: storage.getItem('token'),
       },
       body: JSON.stringify(params),
       onmessage(event) {

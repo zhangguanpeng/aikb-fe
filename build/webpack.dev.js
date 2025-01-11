@@ -29,7 +29,8 @@ module.exports = merge(commonConfig, {
     // 接口代理转发
     proxy: {
       '/aikb/': {
-        target: 'http://ais.fxincen.top:8090',
+        // target: 'http://ais.fxincen.top:8090',
+        target: 'http://ais.fxincen.top:8888',
         changeOrigin: true,
         pathRewrite: { '^': '' },
       },

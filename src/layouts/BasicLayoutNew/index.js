@@ -78,7 +78,7 @@ const BasicLayoutNew = ({ route, children }) => {
             </Tooltip>
           </div>
           <Divider style={{ margin: '0px' }} />
-          <div className="menu-item" onClick={ () => { window.open('http://ais.fxincen.top:8030/', '_blank') }}>
+          <div className="menu-item" onClick={ () => { window.open('http://localhost:9999/', '_blank') }}>
             <Tooltip placement="right" title='写作助手'>
               <FormOutlined style={{ fontSize: '24px' }} />
             </Tooltip>
