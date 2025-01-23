@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Input } from 'antd';
+import { Input, message } from 'antd';
 import { observer } from 'mobx-react';
 import {
-  SendOutlined
+  SendOutlined, UploadOutlined
 } from '@ant-design/icons';
 import logoImage from '../../assets/images/logo.png';
 import './style.less';
@@ -18,6 +18,10 @@ const HomePage = () => {
   }, []);
 
   const goToNewChatPage = () => {
+    if (!askInputValue) {
+      message.warning('请输入您想问的问题');
+      return
+    }
     history.push({
       pathname: '/newChat',
       query: {
@@ -34,12 +38,18 @@ const HomePage = () => {
           <img src={logoImage}/>
         </div>
         <div className="home-input">
-          <Input
+          <Input.TextArea
             placeholder="请输入您想问的内容"
             value={askInputValue}
+            bordered={false}
             onChange={(e) => { setAskInputValue(e.target.value) }}
+            autoSize={{ minRows: 1, maxRows: 3 }}
+            style={{ fontSize: '16px' }}
           />
           <div className="btns">
+            <div className="image-upload" onClick={goToNewChatPage}>
+              <UploadOutlined style={{ fontSize: '24px'}} />
+            </div>
             <div className="btn-send" onClick={goToNewChatPage}>
               <SendOutlined style={{ fontSize: '24px', color: '#4993CB'}} />
             </div>

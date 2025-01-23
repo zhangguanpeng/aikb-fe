@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Input, Spin, Avatar, Drawer, Modal } from 'antd';
+import { Input, Spin, Avatar, Drawer, Modal, message } from 'antd';
 import { observer } from 'mobx-react';
-import { SendOutlined, UserOutlined, UnorderedListOutlined, EditOutlined } from '@ant-design/icons';
+import { SendOutlined, UserOutlined, UnorderedListOutlined, EditOutlined, CopyOutlined, SyncOutlined, LikeOutlined, DislikeOutlined } from '@ant-design/icons';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import CustomCollapse from '@/components/CustomCollapse';
 import ReactMarkdown from 'react-markdown';
@@ -20,7 +20,8 @@ const NewChatPage = () => {
   const [newChatName, setNewChatName] = useState('');
   const newChatStore = useContext(Store);
   const {
-    chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList
+    chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList,
+    fetchFeedback
   } = newChatStore;
 
   const chatContentRef = useRef(null);
@@ -75,6 +76,29 @@ const NewChatPage = () => {
     scrollChatContentToBottom();
   });
 
+  const handleCopy = (anwser) => {
+    message.success('内容已经复制到粘贴板');
+    const copyElement = document.getElementById(anwser.id);
+    navigator.clipboard.writeText(copyElement.innerText);
+  }
+
+  const handleReGenerate = (chatInfo) => {
+    getChatStream(chatInfo.anwser.askText);
+  }
+
+  const handleFeedback = (actionType, anwser) => {
+    const params = {
+      rating: actionType,
+    };
+
+    fetchFeedback(params, anwser.id).then((result) => {
+      console.log('feedback result', result);
+      if (result.succeed) {
+        anwser.rating = actionType;
+      }
+    });
+  }
+
   const renderChatItem = (chatInfo) => {
     const chatElements = [];
     if (chatInfo.ask) {
@@ -102,11 +126,41 @@ const NewChatPage = () => {
             ) : (
               <>
                 {chatInfo.anwser.textIntro && <CustomCollapse data={chatInfo.anwser} />}
-                <div className="text">
+                <div className="text" id={chatInfo.anwser.id}>
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {chatInfo.anwser.text}
                   </ReactMarkdown>
                 </div>
+                {
+                  chatInfo.anwser.showAction && (
+                    <div
+                      className="action-box"
+                    >
+                      <div className="left">
+                        <span
+                          onClick={() => { handleCopy(chatInfo.anwser) }}
+                        >
+                          <CopyOutlined />
+                          复制
+                        </span>
+                        <span
+                          onClick={() => { handleReGenerate(chatInfo) }}
+                        >
+                          <SyncOutlined />
+                          重新回答
+                        </span>
+                      </div>
+                      <div className="right">
+                        <span onClick={() => { handleFeedback('THUMBS_UP', chatInfo.anwser) }}>
+                          <LikeOutlined className={chatInfo.anwser.rating === 'THUMBS_UP' ? 'iconActive' : ''} />
+                        </span>
+                        <span onClick={() => { handleFeedback('THUMBS_DOWN', chatInfo.anwser) }}>
+                          <DislikeOutlined className={chatInfo.anwser.rating === 'THUMBS_DOWN' ? 'iconActive' : ''} />
+                        </span>
+                      </div>
+                    </div>
+                  )
+                }
               </>
             )}
           </div>
@@ -146,6 +200,7 @@ const NewChatPage = () => {
         showCollapse: false,
         textReference: [],
         recommend: [],
+        showAction: true,
       },
     };
 
@@ -299,12 +354,13 @@ const NewChatPage = () => {
         {chatData.map((chatInfo) => renderChatItem(chatInfo))}
       </div>
       <div className="ask-input">
-        <Input
+        <Input.TextArea
           placeholder="请输入您想问的内容"
           value={askInputValue}
-          onChange={(e) => {
-            setAskInputValue(e.target.value);
-          }}
+          bordered={false}
+          onChange={(e) => { setAskInputValue(e.target.value) }}
+          autoSize={{ minRows: 1, maxRows: 3 }}
+          style={{ fontSize: '16px' }}
         />
         <div className="btns">
           <div

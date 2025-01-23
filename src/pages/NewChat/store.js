@@ -1,8 +1,8 @@
 /* eslint-disable consistent-return */
 import { observable, action, computed } from 'mobx';
-import { message } from 'antd';
+// import { message } from 'antd';
 import { createContext } from 'react';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 
 import request from '@/services/newRequest';
 import { storage } from '@/utils';
@@ -81,52 +81,63 @@ class NewChatStore {
 
       chatHistoryData.push(initChatObj);
 
-	  payload.forEach((chatItem) => {
-		const chatObj = {};
-		if (chatItem.role === "USER") {
-			chatObj.ask = {
-				text: chatItem.content.text
-			};
-			chatObj.anwser = null;
-		}
+      let askText = '';
+      payload.forEach((chatItem) => {
+      const chatObj = {};
+      if (chatItem.role === "USER") {
+        chatObj.ask = {
+          text: chatItem.content.text
+        };
+        askText = chatItem.content.text;
+        chatObj.anwser = null;
+      }
 
-		if (chatItem.role === "ASSISTANT") {
-			const textReference = chatItem.content.refList || [];
-			console.log('chatItem.refList', chatItem.content.refList);
-			chatObj.ask = null;
-			chatObj.anwser = {
-				loading: false,
-				textIntro: `在阅读了大量文件后，我甄选了${textReference.length}份最相关的文件供您参考。`,
-				text: chatItem.content.text,
-				showCollapse: textReference.length > 0,
-				textReference,
-				recommend: [],
-			};
+      if (chatItem.role === "ASSISTANT") {
+        const textReference = chatItem.content.refList || [];
+        console.log('chatItem.refList', chatItem.content.refList);
+        chatObj.ask = null;
+        chatObj.anwser = {
+          loading: false,
+          textIntro: `在阅读了大量文件后，我甄选了${textReference.length}份最相关的文件供您参考。`,
+          text: chatItem.content.text,
+          showCollapse: textReference.length > 0,
+          textReference,
+          recommend: [],
+          showAction: true,
+          rating: chatItem.rating,
+          id: chatItem.id,
+          askText
+        };
 
-			this.textReference = textReference;
-		}
+        this.textReference = textReference;
+      }
 
-		if (chatItem.role === "QA") {
-			const textReference = chatItem.content.refList || [];
-			console.log('chatItem.refList', chatItem.content.refList);
-			chatObj.ask = null;
-			chatObj.anwser = {
-				loading: false,
-				textIntro: 'AI大模型告诉您：',
-				text: chatItem.content.text,
-				showCollapse: false,
-				textReference,
-				recommend: [],
-			};
+      if (chatItem.role === "QA") {
+        const textReference = chatItem.content.refList || [];
+        console.log('chatItem.refList', chatItem.content.refList);
+        chatObj.ask = null;
+        chatObj.anwser = {
+          loading: false,
+          textIntro: 'AI大模型告诉您：',
+          text: chatItem.content.text,
+          showCollapse: false,
+          textReference,
+          recommend: [],
+          showAction: true,
+          rating: chatItem.rating,
+          id: chatItem.id,
+          askText
+        };
 
-			this.textReference = textReference;
-		}
-		chatHistoryData.push(chatObj);
-	  });
-	  this.chatData = chatHistoryData;
+        this.textReference = textReference;
+      }
+      chatHistoryData.push(chatObj);
+      });
+      console.log('chatHistoryData', chatHistoryData);
+      this.chatData = chatHistoryData;
       this.pageLoading = false;
     } catch (error) {
-      //
+        //
     }
   }
 
@@ -180,6 +191,27 @@ class NewChatStore {
       console.log('修改会话名称res', res);
       this.currentChat = res.payload;
       this.loading = false;
+    } catch (error) {
+      //
+    }
+  }
+
+  @action.bound
+  async fetchFeedback(params, msgId) {
+    try {
+      // this.loading = true;
+
+      const res = await request({
+        url: `/aikb/v1/chat/${this.currentChat.id}/msg/${msgId}/feedback`,
+        method: 'put',
+        data: params,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': storage.getItem('token')
+        },
+      });
+      return res;
+      // this.loading = false;
     } catch (error) {
       //
     }

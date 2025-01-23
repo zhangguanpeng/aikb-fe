@@ -96,6 +96,29 @@
                 .text {
                     margin-top: 10px;
                 }
+
+                .action-box {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    span {
+                        padding: 5px 3px;
+                        cursor: pointer;
+                        color: gray;
+                        font-size: 14px;
+
+                        .iconActive {
+                            color: #4993CB;
+                        }
+
+                        &:hover {
+                            // background-color: rgba(73, 147, 203, 0.1);
+                            border-radius: 5px;
+                            color: #000;
+                        }
+                    }
+                }
             }
         }
 

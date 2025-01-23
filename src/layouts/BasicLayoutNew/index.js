@@ -55,7 +55,7 @@ const BasicLayoutNew = ({ route, children }) => {
   return (
     <Layout className="main-layout">
       {/* <div>header</div> */}
-      <Content style={{ padding: '0 48px' }} className="content">
+      <Content style={{ padding: '0 20px' }} className="content">
         {/* <Sider className="sider-menu" collapsible collapsed trigger={null}>
           <SiderMenuNew routes={route.childRoutes} />
         </Sider> */}
@@ -97,7 +97,7 @@ const BasicLayoutNew = ({ route, children }) => {
           {children}
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center', background: 'rgb(243, 245, 250)' }}>
+      <Footer style={{ textAlign: 'center', background: 'rgb(243, 245, 250)', padding: '18px 50px' }}>
         <Divider plain><span style={{ color: 'gray' }}>内容由AI大模型生成，请注意核实</span></Divider>
       </Footer>
     </Layout>
