@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Input, Spin, Avatar, Drawer, Modal, message } from 'antd';
+import { Input, Spin, Avatar, Drawer, Modal, message, Upload } from 'antd';
 import { observer } from 'mobx-react';
-import { SendOutlined, UserOutlined, UnorderedListOutlined, EditOutlined, CopyOutlined, SyncOutlined, LikeOutlined, DislikeOutlined } from '@ant-design/icons';
+import { UserOutlined, UnorderedListOutlined, EditOutlined, CopyOutlined, SyncOutlined, LikeOutlined, DislikeOutlined } from '@ant-design/icons';
+import { Send, UploadPicture, ToBottom, CloseOne } from '@icon-park/react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import CustomCollapse from '@/components/CustomCollapse';
 import ReactMarkdown from 'react-markdown';
@@ -14,14 +15,21 @@ import Store from './store';
 
 import './style.less';
 
+const guessAsks = [
+  '请描述图片中包含的物体',
+  '请描述图片包含物体的质量安全问题及检查要点'
+];
+
 const NewChatPage = () => {
   const [askInputValue, setAskInputValue] = useState('');
   const [editChatNameShow, setEditChatNameShow] = useState(false);
   const [newChatName, setNewChatName] = useState('');
+  // const [toBottomBtnShow, setToBottomBtnShow] = useState(false);
+  const [uploadedPics, setUploadedPics] = useState([]);
   const newChatStore = useContext(Store);
   const {
     chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList,
-    fetchFeedback
+    fetchFeedback, uploadChatImage
   } = newChatStore;
 
   const chatContentRef = useRef(null);
@@ -43,6 +51,36 @@ const NewChatPage = () => {
       // }
       componentNode.scrollTo(0, componentNode.scrollHeight + 10);
     }
+  };
+
+  const customRequest = (fileList) => {
+    const formData = new FormData();
+    fileList.forEach((file) => {
+      formData.append(`imageList`, file);
+    });
+
+    uploadChatImage(formData)
+      .then((res) => {
+        console.log('上传图片res', res);
+        const images = res.payload.map((imageItem) => `/aikb/v1/chat/image/${imageItem.oriImageFileUrl}`);
+        setUploadedPics((current) => [...current, ...images]);
+      })
+      .catch(() => {
+        message.error('上传失败');
+      });
+  };
+
+  const uploadProps = {
+    name: 'file',
+    accept: '.jpg, .png, .jpeg',
+    beforeUpload: (file) => {
+      console.log('beforeUpload file', file);
+      customRequest([file]);
+      return false;
+    },
+    maxCount: 50,
+    showUploadList: false,
+    multiple: false,
   };
 
   // 页面加载获取数据
@@ -83,7 +121,10 @@ const NewChatPage = () => {
   }
 
   const handleReGenerate = (chatInfo) => {
-    getChatStream(chatInfo.anwser.askText);
+    getChatStream({
+      text: chatInfo.anwser.askText,
+      imageList: []
+    });
   }
 
   const handleFeedback = (actionType, anwser) => {
@@ -96,6 +137,8 @@ const NewChatPage = () => {
       if (result.succeed) {
         anwser.rating = actionType;
       }
+    }).catch(() => {
+      message.error('反馈失败！');
     });
   }
 
@@ -111,6 +154,21 @@ const NewChatPage = () => {
         </div>
       );
       chatElements.push(askElement);
+
+      if (chatInfo.ask.imageList && chatInfo.ask.imageList.length > 0) {
+        const askImgElement = (
+          <div className="ask-img-item">
+            {
+              chatInfo.ask.imageList.map((imageUrl) => (
+                <div className="img-wrap">
+                  <img src={imageUrl} alt="" />
+                </div>
+              ))
+            }
+          </div>
+        );
+        chatElements.push(askImgElement);
+      }
     }
 
     if (chatInfo.anwser) {
@@ -175,7 +233,10 @@ const NewChatPage = () => {
           className="recommend-item"
           key={index}
           onClick={() => {
-            getChatStream(recommendItem);
+            getChatStream({
+              text: recommendItem,
+              imageList: []
+            });
           }}
         >
           {recommendItem}
@@ -191,7 +252,8 @@ const NewChatPage = () => {
     // scrollChatContentToBottom();
     const newChatObj = {
       ask: {
-        text: question ? question : askInputValue,
+        text: question ? question.text : askInputValue,
+        imageList: question ? question.imageList : uploadedPics,
       },
       anwser: {
         loading: true,
@@ -205,12 +267,15 @@ const NewChatPage = () => {
     };
 
     chatData.push(newChatObj);
+    newChatStore.chatData = [...chatData];
 
     // scrollChatContentToBottom();
 
-    const params = {
+    const params = question ? {
+      content: question,
+    } : {
       content: {
-        text: question ? question : askInputValue,
+        text: askInputValue,
       },
     };
 
@@ -220,6 +285,7 @@ const NewChatPage = () => {
 
     let delay = 0;
     let textContent = '';
+    let anwserId = 0;
     const chatId = chat ? chat.id : currentChat.id;
 
     fetchEventSource(`aikb/v1/chat/${chatId}/enhanced`, {
@@ -232,6 +298,7 @@ const NewChatPage = () => {
       body: JSON.stringify(params),
       onmessage(event) {
         delay = delay + 50;
+        anwserId = anwserId + 1;
 
         const st = setTimeout(() => {
           if (newChatObj.anwser.loading) {
@@ -278,6 +345,7 @@ const NewChatPage = () => {
               newChatObj.anwser.textIntro = 'AI大模型告诉您';
             }
             newChatObj.anwser.text = textContent;
+            newChatObj.anwser.id = `anwser${anwserId}`;
             // newChatStore.chatData[chatData.length - 1] = newChatObj;
 
             newChatStore.chatData[chatData.length - 1] = newChatObj;
@@ -298,7 +366,7 @@ const NewChatPage = () => {
       },
       onerror(error) {
         // console.info(error);
-        //返回流报错
+        // 返回流报错
         // this.close();
         throw new Error(error);
       },
@@ -317,6 +385,23 @@ const NewChatPage = () => {
   const handleEditChatNameCancel = () => {
     setEditChatNameShow(false);
   };
+
+  const deleteUploadedPic = (index) => {
+    console.log('deleteUploadedPic, index', index);
+
+    const newUploadedPics = [...uploadedPics];
+    newUploadedPics.splice(index, 1);
+    setUploadedPics([...newUploadedPics]);
+  }
+
+  const handleGuessAsk = (askValue) => {
+    setAskInputValue(askValue);
+    setUploadedPics([]);
+    getChatStream({
+      text: askValue,
+      imageList: uploadedPics
+    });
+  }
 
   if (pageLoading) {
     return (
@@ -346,12 +431,23 @@ const NewChatPage = () => {
             newChatStore.textReferenceDetailShow = true;
           }}
         >
-          <UnorderedListOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
+          <UnorderedListOutlined style={{ fontSize: '24px', color: '#318CFF' }} />
           <div className="text">引用详情</div>
         </div>
       </div>
       <div className="content" ref={chatContentRef} id="chat-content">
         {chatData.map((chatInfo) => renderChatItem(chatInfo))}
+      </div>
+      {/* {
+        toBottomBtnShow && (
+          <div className="toBottom-btn" onClick={scrollChatContentToBottom}>
+            <DoubleRightOutlined style={{ fontSize: '24px', color: '#318CFF'}} />
+          </div>
+        )
+      } */}
+      <div className="toBottom-btn" onClick={scrollChatContentToBottom}>
+        {/* <DoubleRightOutlined style={{ fontSize: '24px', color: '#318CFF'}} /> */}
+        <ToBottom theme="filled" size="24" fill="#318CFF" />
       </div>
       <div className="ask-input">
         <Input.TextArea
@@ -362,14 +458,42 @@ const NewChatPage = () => {
           autoSize={{ minRows: 1, maxRows: 3 }}
           style={{ fontSize: '16px' }}
         />
+        <div className="pic-box">
+            {
+              uploadedPics.map((picUrl, index) => (
+                <div className="img-wrap" key={index}>
+                  <div className="img-close" onClick={() => { deleteUploadedPic(index) }}>
+                    <CloseOne theme="filled" size="14" fill="#EB3D47" />
+                  </div>
+                  <img src={picUrl} alt="" />
+                </div>
+              ))
+            }
+        </div>
+          {
+            uploadedPics.length > 0 && (
+              <div className="guess-ask-box">
+                <div className="text1">猜你想问：</div>
+                {
+                  guessAsks.map((askStr) => (<div className="text2" onClick={() => { handleGuessAsk(askStr) }}>{askStr}</div>))
+                }
+              </div>
+            )
+          }
         <div className="btns">
+          <div className="image-upload">
+              <Upload {...uploadProps}>
+                <UploadPicture theme="outline" size="24" fill="#333" />
+              </Upload>
+          </div>
           <div
             className="btn-send"
             onClick={() => {
               getChatStream();
+              setUploadedPics([]);
             }}
           >
-            <SendOutlined style={{ fontSize: '24px', color: '#4993CB' }} />
+            <Send theme="outline" size="24" fill="#318CFF" />
           </div>
         </div>
       </div>

@@ -26,7 +26,8 @@ const BasicLayoutNew = ({ route, children }) => {
 
   const token = storage.getItem('token');
   const expirestamp = storage.getItem('expirestamp');
-  const expired = dayjs().unix() > expirestamp;
+  const expired = dayjs().unix() * 1000 > expirestamp;
+
   // 判断是否登录或者会话是否过期
   if (!token || expired) {
     message.warning('登录已经失效，请重新登录');
@@ -62,19 +63,19 @@ const BasicLayoutNew = ({ route, children }) => {
         <div className="sider-menu">
           <div className="menu-item" onClick={ () => { goToPage('/home') }}>
             <Tooltip placement="right" title='首页'>
-              <HomeOutlined style={{ fontSize: '24px', color: currentPathname === '/home' ? '#4993CB' : '#333' }} />
+              <HomeOutlined style={{ fontSize: '24px', color: currentPathname === '/home' ? '#318CFF' : '#333' }} />
             </Tooltip>
           </div>
           <Divider style={{ margin: '0px' }} />
           <div className="menu-item" onClick={ () => { goToPage('/newChat') }}>
             <Tooltip placement="right" title='开启新会话'>
-              <MessageOutlined style={{ fontSize: '24px', color: currentPathname === '/newChat' ? '#4993CB' : '#333'  }} />
+              <MessageOutlined style={{ fontSize: '24px', color: currentPathname === '/newChat' ? '#318CFF' : '#333'  }} />
             </Tooltip>
           </div>
           <Divider style={{ margin: '0px' }} />
           <div className="menu-item" onClick={ () => { goToPage('/historyChat') }}>
             <Tooltip placement="right" title='历史会话'>
-              <HistoryOutlined style={{ fontSize: '24px', color: currentPathname === '/historyChat' ? '#4993CB' : '#333'  }} />
+              <HistoryOutlined style={{ fontSize: '24px', color: currentPathname === '/historyChat' ? '#318CFF' : '#333'  }} />
             </Tooltip>
           </div>
           <Divider style={{ margin: '0px' }} />
@@ -97,7 +98,7 @@ const BasicLayoutNew = ({ route, children }) => {
           {children}
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center', background: 'rgb(243, 245, 250)', padding: '18px 50px' }}>
+      <Footer style={{ textAlign: 'center', background: 'rgb(243, 245, 250)', padding: '5px 50px' }}>
         <Divider plain><span style={{ color: 'gray' }}>内容由AI大模型生成，请注意核实</span></Divider>
       </Footer>
     </Layout>

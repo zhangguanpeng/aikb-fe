@@ -13,7 +13,7 @@ const CustomCollapse = (props) => {
     return (
         <div className="custom-collapse-component">
             <div className="intro">
-                <BulbOutlined style={{ marginRight: '10px', color: '#4993CB'}} />
+                <BulbOutlined style={{ marginRight: '10px', color: '#318CFF'}} />
                 <span>{data.textIntro}</span>
                 {
                     data.showCollapse && collapsed && <DownOutlined onClick={() => { setCollapsed(false) }} style={{ marginLeft: '10px', fontSize: '12px'}} />

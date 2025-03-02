@@ -4,8 +4,8 @@
 
     .content {
         .home-logo {
-            width: 300px;
-            margin-top: 80px;
+            width: 350px;
+            margin-top: 130px;
             margin-left: auto;
             margin-right: auto;
 
@@ -15,8 +15,8 @@
         }
 
         .home-input {
-            margin-top: 20px;
-            height: 150px;
+            margin-top: 50px;
+            // height: 150px;
             padding: 15px;
             border: 1px solid #e2e2e2;
             border-radius: 10px;
@@ -32,9 +32,49 @@
                 }
             }
 
+            .pic-box {
+                padding: 15px 16px 12px;
+                margin-right: 10px;
+                display: flex;
+
+                .img-wrap {
+                    height: 120px;
+                    position: relative;
+                    // border: 1px solid #e5e5e5;
+                    border-radius: 5px;
+                    margin-right: 10px;
+
+                    .img-close {
+                        position: absolute;
+                        right: -5px;
+                        top: -5px;
+                    }
+
+                    img {
+                        height: 100%;
+                    }
+                }
+            }
+
+            .guess-ask-box {
+                display: flex;
+                font-size: 12px;
+                padding-left: 15px;
+
+                .text1 {
+                    margin-right: 5px;
+                }
+
+                .text2 {
+                    margin-right: 10px;
+                    color: #318CFF;
+                    cursor: pointer;
+                }
+            }
+
             .btns {
                 position: relative;
-                bottom: -45px;
+                // bottom: -45px;
                 display: flex;
                 justify-content: flex-end;
 
@@ -52,13 +92,13 @@
 
                 .btn-send {
                     cursor: pointer;
-                    padding: 3px 3px 0px 3px;
-                    border-radius: 2px;
-                    background-color: rgba(73, 147, 203, 0.1);
+                    padding: 5px 5px 0px 5px;
+                    border-radius: 5px;
+                    // background-color: rgba(73, 147, 203, 0.1);
                     
-                    // &:hover {
-                    //     background-color: rgba(73, 147, 203, 0.1);
-                    // }
+                    &:hover {
+                        background-color: rgba(73, 147, 203, 0.1);
+                    }
                 }
             }
         }
