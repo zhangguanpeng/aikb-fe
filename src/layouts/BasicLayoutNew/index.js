@@ -78,12 +78,12 @@ const BasicLayoutNew = ({ route, children }) => {
               <HistoryOutlined style={{ fontSize: '24px', color: currentPathname === '/historyChat' ? '#318CFF' : '#333'  }} />
             </Tooltip>
           </div>
-          <Divider style={{ margin: '0px' }} />
-          <div className="menu-item" onClick={ () => { window.open('http://localhost:9999/', '_blank') }}>
+          {/* <Divider style={{ margin: '0px' }} /> */}
+          {/* <div className="menu-item" onClick={ () => { window.open('http://localhost:9999/', '_blank') }}>
             <Tooltip placement="right" title='写作助手'>
               <FormOutlined style={{ fontSize: '24px' }} />
             </Tooltip>
-          </div>
+          </div> */}
           <Divider style={{ margin: '0px' }} />
           <div className="menu-item">
             {/* <Tooltip placement="right" title='写作助手'>

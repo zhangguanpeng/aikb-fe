@@ -242,4 +242,4 @@ class NewChatStore {
 
 }
 
-export default createContext(new NewChatStore());
+export default new NewChatStore();

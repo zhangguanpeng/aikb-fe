@@ -50,11 +50,6 @@ const HomePage = () => {
     multiple: false,
   };
 
-  // 页面加载获取数据
-  useEffect(() => {
-    //
-  }, []);
-
   const goToNewChatPage = () => {
     if (!askInputValue) {
       message.warning('请输入您想问的问题');
@@ -70,6 +65,30 @@ const HomePage = () => {
       }
     });
   }
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+      event.preventDefault();
+      console.log('askInputValue', askInputValue);
+      if (!askInputValue) {
+        message.warning('请输入您想问的问题');
+        return;
+      }
+      // 处理Enter键的逻辑
+      goToNewChatPage();
+    }
+  }
+
+  useEffect(() => {
+    // 监听键盘Enter事件
+    // document.addEventListener('keydown', (event) => {
+    //   if (event.key === 'Enter' || event.keyCode === 13) {
+    //       // console.log('Enter键被按下');
+    //       console.log('askInputValue', askInputValue);
+    //       goToNewChatPage();
+    //   }
+    // });
+  }, []);
 
   const handleGuessAsk = (askValue) => {
     setAskInputValue(askValue);
@@ -110,6 +129,7 @@ const HomePage = () => {
             value={askInputValue}
             bordered={false}
             onChange={(e) => { setAskInputValue(e.target.value) }}
+            onKeyPress={handleKeyPress}
             autoSize={{ minRows: 1, maxRows: 3 }}
             style={{ fontSize: '16px' }}
           />

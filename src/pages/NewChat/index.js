@@ -11,7 +11,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import { splitUrl, storage } from '@/utils';
 import logo from '../../assets/images/logo1.png';
-import Store from './store';
+import newChatStore from './store';
 
 import './style.less';
 
@@ -26,7 +26,7 @@ const NewChatPage = () => {
   const [newChatName, setNewChatName] = useState('');
   // const [toBottomBtnShow, setToBottomBtnShow] = useState(false);
   const [uploadedPics, setUploadedPics] = useState([]);
-  const newChatStore = useContext(Store);
+  // const newChatStore = useContext(Store);
   const {
     chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList,
     fetchFeedback, uploadChatImage
@@ -35,8 +35,6 @@ const NewChatPage = () => {
   const chatContentRef = useRef(null);
 
   const history = useHistory();
-
-  // console.log('chatData', chatData);
 
   const scrollChatContentToBottom = () => {
     // const chatContentElement = document.querySelector("#chat-content");
@@ -83,6 +81,133 @@ const NewChatPage = () => {
     multiple: false,
   };
 
+  const getChatStream = (question, chat) => {
+    // scrollChatContentToBottom();
+    const newChatObj = {
+      ask: {
+        text: question ? question.text : askInputValue,
+        imageList: question ? question.imageList : uploadedPics,
+      },
+      anwser: {
+        loading: true,
+        textIntro: '',
+        text: '',
+        showCollapse: false,
+        textReference: [],
+        recommend: [],
+        showAction: true,
+      },
+    };
+
+    chatData.push(newChatObj);
+    console.log('chatData', chatData);
+    newChatStore.chatData = [...chatData];
+
+    const params = question ? {
+      content: question,
+    } : {
+      content: {
+        text: askInputValue,
+        imageList: uploadedPics
+      },
+    };
+
+    newChatStore.textReference = [];
+    newChatStore.textReferenceDetailShow = false;
+    setAskInputValue('');
+
+    let delay = 0;
+    let textContent = '';
+    let anwserId = 0;
+    const chatId = chat ? chat.id : currentChat.id;
+
+    fetchEventSource(`aikb/v1/chat/${chatId}/enhanced`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: '*/*, text/event-stream',
+        Authorization: storage.getItem('token'),
+      },
+      body: JSON.stringify(params),
+      onmessage(event) {
+        delay += 50;
+        anwserId += 1;
+
+        const st = setTimeout(() => {
+          if (newChatObj.anwser.loading) {
+            // setLoading(false);
+            newChatObj.anwser.loading = false;
+          }
+          // newChatStore.chatData[chatData.length - 1] = newChatObj;
+
+          const res = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          console.log('收到消息：', res);
+          if (res.payload.type === 'RECOMMEND') {
+            const recommend = JSON.parse(res.payload.body);
+            console.log('recommend', recommend);
+            // newChatObj.anwser.recommend = typeof recommend[0] === 'string' ? JSON.parse(recommend[0]) : recommend[0];
+            newChatObj.anwser.recommend = recommend;
+            newChatStore.chatData[chatData.length - 1] = newChatObj;
+          }
+
+          if (res.payload.type === 'REFERENCE') {
+            const newTextReference = JSON.parse(res.payload.body);
+            console.log('newTextReference', newTextReference);
+            newChatStore.textReference = newTextReference;
+            newChatStore.textReferenceDetailShow = true;
+            newChatObj.anwser.textIntro = `在阅读了大量文件后，我甄选了${newTextReference.length}份最相关的文件供您参考。`;
+            newChatObj.anwser.showCollapse = true;
+            newChatObj.anwser.textReference = newTextReference;
+            // newChatStore.chatData[chatData.length - 1] = newChatObj;
+          }
+
+          if (res.payload.type === 'QA') {
+            const newTextReference = JSON.parse(res.payload.body);
+            console.log('newTextReference', newTextReference);
+            newChatStore.textReference = newTextReference;
+            newChatStore.textReferenceDetailShow = newTextReference.length > 0;
+            newChatObj.anwser.textIntro = 'AI大模型告诉您：';
+            newChatObj.anwser.showCollapse = false;
+            newChatObj.anwser.textReference = newTextReference;
+            // newChatStore.chatData[chatData.length - 1] = newChatObj;
+          }
+
+          if (res.payload.type === 'MESSAGE') {
+            textContent = `${textContent}${res.payload.body}`;
+            if (!newChatObj.anwser.textIntro) {
+              newChatObj.anwser.textIntro = 'AI大模型告诉您';
+            }
+            newChatObj.anwser.text = textContent;
+            newChatObj.anwser.id = `anwser${anwserId}`;
+            // newChatStore.chatData[chatData.length - 1] = newChatObj;
+
+            newChatStore.chatData[chatData.length - 1] = newChatObj;
+            // scrollToBottom();
+
+            if (st) {
+              clearTimeout(st);
+            }
+
+            // scrollChatContentToBottom();
+          }
+        }, delay);
+      },
+      onclose() {
+        // 关闭流
+        // scrollChatContentToBottom();
+        this.close();
+      },
+      onerror(error) {
+        // console.info(error);
+        // 返回流报错
+        // this.close();
+        throw new Error(error);
+      },
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+
   // 页面加载获取数据
   useEffect(async () => {
     console.log('history', history);
@@ -100,7 +225,7 @@ const NewChatPage = () => {
     }
     const fromHomeValue = history.location.query?.value;
     const params = {
-      title: '未命名会话',
+      title: fromHomeValue ? fromHomeValue.text : '未命名会话',
     };
 
     const newChat = await fetchCreateChat(params);
@@ -108,6 +233,18 @@ const NewChatPage = () => {
     if (fromHomeValue) {
       getChatStream(fromHomeValue, newChat);
     }
+
+    // 监听页面跳转
+    history.listen((location) => {
+ 
+      console.log("路由发生变化，新位置:", location);
+      if (location.pathname !== '/newChat') {
+        newChatStore.chatData = [];
+        newChatStore.textReferenceDetailShow = false;
+      }
+ 
+    });
+
   }, []);
 
   useEffect(() => {
@@ -122,7 +259,7 @@ const NewChatPage = () => {
 
   const handleReGenerate = (chatInfo) => {
     getChatStream({
-      text: chatInfo.anwser.askText,
+      text: chatInfo.ask.text,
       imageList: []
     });
   }
@@ -248,133 +385,6 @@ const NewChatPage = () => {
     return chatElements;
   };
 
-  const getChatStream = (question, chat) => {
-    // scrollChatContentToBottom();
-    const newChatObj = {
-      ask: {
-        text: question ? question.text : askInputValue,
-        imageList: question ? question.imageList : uploadedPics,
-      },
-      anwser: {
-        loading: true,
-        textIntro: '',
-        text: '',
-        showCollapse: false,
-        textReference: [],
-        recommend: [],
-        showAction: true,
-      },
-    };
-
-    chatData.push(newChatObj);
-    newChatStore.chatData = [...chatData];
-
-    // scrollChatContentToBottom();
-
-    const params = question ? {
-      content: question,
-    } : {
-      content: {
-        text: askInputValue,
-      },
-    };
-
-    newChatStore.textReference = [];
-    newChatStore.textReferenceDetailShow = false;
-    setAskInputValue('');
-
-    let delay = 0;
-    let textContent = '';
-    let anwserId = 0;
-    const chatId = chat ? chat.id : currentChat.id;
-
-    fetchEventSource(`aikb/v1/chat/${chatId}/enhanced`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: '*/*, text/event-stream',
-        Authorization: storage.getItem('token'),
-      },
-      body: JSON.stringify(params),
-      onmessage(event) {
-        delay = delay + 50;
-        anwserId = anwserId + 1;
-
-        const st = setTimeout(() => {
-          if (newChatObj.anwser.loading) {
-            // setLoading(false);
-            newChatObj.anwser.loading = false;
-          }
-          // newChatStore.chatData[chatData.length - 1] = newChatObj;
-
-          const res = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-          console.log('收到消息：', res);
-          if (res.payload.type === 'RECOMMEND') {
-            const recommend = JSON.parse(res.payload.body);
-            console.log('recommend', recommend);
-            // newChatObj.anwser.recommend = typeof recommend[0] === 'string' ? JSON.parse(recommend[0]) : recommend[0];
-            newChatObj.anwser.recommend = recommend;
-            newChatStore.chatData[chatData.length - 1] = newChatObj;
-          }
-
-          if (res.payload.type === 'REFERENCE') {
-            const newTextReference = JSON.parse(res.payload.body);
-            console.log('newTextReference', newTextReference);
-            newChatStore.textReference = newTextReference;
-            newChatStore.textReferenceDetailShow = true;
-            newChatObj.anwser.textIntro = `在阅读了大量文件后，我甄选了${newTextReference.length}份最相关的文件供您参考。`;
-            newChatObj.anwser.showCollapse = true;
-            newChatObj.anwser.textReference = newTextReference;
-            // newChatStore.chatData[chatData.length - 1] = newChatObj;
-          }
-
-          if (res.payload.type === 'QA') {
-            const newTextReference = JSON.parse(res.payload.body);
-            console.log('newTextReference', newTextReference);
-            newChatStore.textReference = newTextReference;
-            newChatStore.textReferenceDetailShow = newTextReference.length > 0;
-            newChatObj.anwser.textIntro = 'AI大模型告诉您：';
-            newChatObj.anwser.showCollapse = false;
-            newChatObj.anwser.textReference = newTextReference;
-            // newChatStore.chatData[chatData.length - 1] = newChatObj;
-          }
-
-          if (res.payload.type === 'MESSAGE') {
-            textContent = `${textContent}${res.payload.body}`;
-            if (!newChatObj.anwser.textIntro) {
-              newChatObj.anwser.textIntro = 'AI大模型告诉您';
-            }
-            newChatObj.anwser.text = textContent;
-            newChatObj.anwser.id = `anwser${anwserId}`;
-            // newChatStore.chatData[chatData.length - 1] = newChatObj;
-
-            newChatStore.chatData[chatData.length - 1] = newChatObj;
-            // scrollToBottom();
-
-            if (st) {
-              clearTimeout(st);
-            }
-
-            // scrollChatContentToBottom();
-          }
-        }, delay);
-      },
-      onclose() {
-        // 关闭流
-        // scrollChatContentToBottom();
-        this.close();
-      },
-      onerror(error) {
-        // console.info(error);
-        // 返回流报错
-        // this.close();
-        throw new Error(error);
-      },
-    }).catch((error) => {
-      console.log(error);
-    });
-  };
-
   const handleEditChatNameOk = () => {
     const params = {
       title: newChatName,
@@ -401,6 +411,19 @@ const NewChatPage = () => {
       text: askValue,
       imageList: uploadedPics
     });
+  }
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+      event.preventDefault();
+      console.log('askInputValue', askInputValue);
+      if (!askInputValue) {
+        message.warning('请输入您想问的问题');
+        return;
+      }
+      // 处理Enter键的逻辑
+      getChatStream();
+    }
   }
 
   if (pageLoading) {
@@ -455,6 +478,7 @@ const NewChatPage = () => {
           value={askInputValue}
           bordered={false}
           onChange={(e) => { setAskInputValue(e.target.value) }}
+          onKeyPress={handleKeyPress}
           autoSize={{ minRows: 1, maxRows: 3 }}
           style={{ fontSize: '16px' }}
         />
