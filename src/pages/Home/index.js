@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Input, message, Upload } from 'antd';
+import { Input, message, Upload, Switch } from 'antd';
 import { observer } from 'mobx-react';
 import { UploadPicture, Send, CloseOne } from '@icon-park/react';
 import logoImage from '../../assets/images/ai-logo.png';
@@ -15,6 +15,7 @@ const guessAsks = [
 const HomePage = () => {
   const [askInputValue, setAskInputValue] = useState('');
   const [uploadedPics, setUploadedPics] = useState([]);
+  const [deepseekStatus, setDeepseekStatus] = useState(true);
   const history = useHistory();
   const homeStore = useContext(Store);
 
@@ -60,7 +61,8 @@ const HomePage = () => {
       query: {
         value: {
           text: askInputValue,
-          imageList: uploadedPics
+          imageList: uploadedPics,
+          deepseekStatus
         }
       }
     });
@@ -156,6 +158,10 @@ const HomePage = () => {
             )
           }
           <div className="btns">
+            <div className="deepseek-switch">
+              <span className={deepseekStatus ? 'isChecked' : 'notChecked'}>深度思考</span>
+              <Switch checked={deepseekStatus} onChange={(value) => { setDeepseekStatus(value) }} size="small" />
+            </div>
             <div className="image-upload" onClick={handleUploadPic}>
               <Upload {...uploadProps}>
                 <UploadPicture theme="outline" size="24" fill="#333" />

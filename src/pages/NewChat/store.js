@@ -94,19 +94,30 @@ class NewChatStore {
 
       if (chatItem.role === "ASSISTANT") {
         const textReference = chatItem.content.refList || [];
+        const isDeepseek = chatItem.content.text.indexOf('<think>') > -1;
         console.log('chatItem.refList', chatItem.content.refList);
+        let text = chatItem.content.text;
+        let thinkText = '';
+        if (isDeepseek) {
+          const thinkEndIndex = chatItem.content.text.indexOf('</think>');
+          thinkText = chatItem.content.text.slice(7, thinkEndIndex);
+          text = chatItem.content.text.slice(thinkEndIndex + 8);
+        }
         chatObj.ask = null;
         chatObj.anwser = {
           loading: false,
-          textIntro: `在阅读了大量文件后，我甄选了${textReference.length}份最相关的文件供您参考。`,
-          text: chatItem.content.text,
-          showCollapse: textReference.length > 0,
+          textIntro: isDeepseek ? 'AI智能助手已完成深度思考' : `在阅读了大量文件后，我甄选了${textReference.length}份最相关的文件供您参考。`,
+          text,
+          showCollapse: textReference.length > 0 || isDeepseek,
           textReference,
           recommend: [],
           showAction: true,
           rating: chatItem.rating,
           id: chatItem.id,
-          askText
+          askText,
+          thinking: false,
+          thinkText,
+          isDeepseek
         };
 
         this.textReference = textReference;
@@ -126,7 +137,9 @@ class NewChatStore {
           showAction: true,
           rating: chatItem.rating,
           id: chatItem.id,
-          askText
+          askText,
+          thinking: false,
+          thinkText: '',
         };
 
         this.textReference = textReference;

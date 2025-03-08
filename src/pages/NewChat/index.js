@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Input, Spin, Avatar, Drawer, Modal, message, Upload } from 'antd';
+import { Input, Spin, Avatar, Drawer, Modal, message, Upload, Switch } from 'antd';
 import { observer } from 'mobx-react';
 import { UserOutlined, UnorderedListOutlined, EditOutlined, CopyOutlined, SyncOutlined, LikeOutlined, DislikeOutlined } from '@ant-design/icons';
 import { Send, UploadPicture, ToBottom, CloseOne } from '@icon-park/react';
@@ -26,6 +26,7 @@ const NewChatPage = () => {
   const [newChatName, setNewChatName] = useState('');
   // const [toBottomBtnShow, setToBottomBtnShow] = useState(false);
   const [uploadedPics, setUploadedPics] = useState([]);
+  const [deepseekStatus, setDeepseekStatus] = useState(true);
   // const newChatStore = useContext(Store);
   const {
     chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList,
@@ -96,6 +97,8 @@ const NewChatPage = () => {
         textReference: [],
         recommend: [],
         showAction: true,
+        thinking: true,
+        thinkText: ''
       },
     };
 
@@ -118,6 +121,8 @@ const NewChatPage = () => {
 
     let delay = 0;
     let textContent = '';
+    let isThinking = true;
+    let thinkContent = '';
     let anwserId = 0;
     const chatId = chat ? chat.id : currentChat.id;
 
@@ -142,7 +147,7 @@ const NewChatPage = () => {
 
           const res = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
           console.log('收到消息：', res);
-          if (res.payload.type === 'RECOMMEND') {
+          if (res?.payload?.type === 'RECOMMEND') {
             const recommend = JSON.parse(res.payload.body);
             console.log('recommend', recommend);
             // newChatObj.anwser.recommend = typeof recommend[0] === 'string' ? JSON.parse(recommend[0]) : recommend[0];
@@ -150,7 +155,7 @@ const NewChatPage = () => {
             newChatStore.chatData[chatData.length - 1] = newChatObj;
           }
 
-          if (res.payload.type === 'REFERENCE') {
+          if (res?.payload?.type === 'REFERENCE') {
             const newTextReference = JSON.parse(res.payload.body);
             console.log('newTextReference', newTextReference);
             newChatStore.textReference = newTextReference;
@@ -161,7 +166,7 @@ const NewChatPage = () => {
             // newChatStore.chatData[chatData.length - 1] = newChatObj;
           }
 
-          if (res.payload.type === 'QA') {
+          if (res?.payload?.type === 'QA') {
             const newTextReference = JSON.parse(res.payload.body);
             console.log('newTextReference', newTextReference);
             newChatStore.textReference = newTextReference;
@@ -172,11 +177,32 @@ const NewChatPage = () => {
             // newChatStore.chatData[chatData.length - 1] = newChatObj;
           }
 
-          if (res.payload.type === 'MESSAGE') {
-            textContent = `${textContent}${res.payload.body}`;
-            if (!newChatObj.anwser.textIntro) {
-              newChatObj.anwser.textIntro = 'AI大模型告诉您';
+          if (res?.payload?.type === 'MESSAGE') {
+            if (res.payload.body === '<think>') {
+              newChatObj.anwser.textIntro = '正在思考：';
+              newChatObj.anwser.showCollapse = true;
+              newChatObj.anwser.isDeepseek = true;
             }
+            
+            if (res.payload.body === '</think>') {
+              newChatObj.anwser.textIntro = 'AI智能助手已完成深度思考：';
+              newChatObj.anwser.thinking = false;
+              isThinking = false;
+            }
+
+            console.log('isThinking, deepseekStatus', isThinking, deepseekStatus);
+
+            if (isThinking) {
+              // console.log('thinkContent', thinkContent);
+              thinkContent = res.payload.body === '<think>' || res.payload.body === '</think>' ? thinkContent : `${thinkContent}${res.payload.body}`;
+            } else {
+              textContent = res.payload.body === '</think>' ? textContent : `${textContent}${res.payload.body}`;
+              if (!newChatObj.anwser.textIntro) {
+                newChatObj.anwser.textIntro = 'AI大模型告诉您';
+              }
+            }
+
+            newChatObj.anwser.thinkText = thinkContent;
             newChatObj.anwser.text = textContent;
             newChatObj.anwser.id = `anwser${anwserId}`;
             // newChatStore.chatData[chatData.length - 1] = newChatObj;
@@ -217,7 +243,7 @@ const NewChatPage = () => {
     if (urlParams.id) {
       const params = {
         page: 0,
-        size: 10000,
+        size: 1000,
         sort: 'createdDate,desc',
       };
       fetchHistoryChatList(params, urlParams.id);
@@ -231,6 +257,7 @@ const NewChatPage = () => {
     const newChat = await fetchCreateChat(params);
     console.log('useEffect newChat', newChat);
     if (fromHomeValue) {
+      setDeepseekStatus(fromHomeValue.deepseekStatus);
       getChatStream(fromHomeValue, newChat);
     }
 
@@ -320,7 +347,7 @@ const NewChatPage = () => {
               <Spin />
             ) : (
               <>
-                {chatInfo.anwser.textIntro && <CustomCollapse data={chatInfo.anwser} />}
+                {chatInfo.anwser.textIntro && <CustomCollapse data={chatInfo.anwser} isDeepseek={deepseekStatus} />}
                 <div className="text" id={chatInfo.anwser.id}>
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {chatInfo.anwser.text}
@@ -505,6 +532,10 @@ const NewChatPage = () => {
             )
           }
         <div className="btns">
+          <div className="deepseek-switch">
+              <span className={deepseekStatus ? 'isChecked' : 'notChecked'}>深度思考</span>
+              <Switch checked={deepseekStatus} onChange={(value) => { setDeepseekStatus(value) }} size="small" />
+          </div>
           <div className="image-upload">
               <Upload {...uploadProps}>
                 <UploadPicture theme="outline" size="24" fill="#333" />
