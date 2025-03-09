@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Input, message, Upload, Switch } from 'antd';
 import { observer } from 'mobx-react';
-import { UploadPicture, Send, CloseOne } from '@icon-park/react';
+import { UploadPicture, Send, CloseOne, ThinkingProblem, AdobeIllustrate } from '@icon-park/react';
 import logoImage from '../../assets/images/ai-logo.png';
 import Store from './store';
 import './style.less';
@@ -10,6 +10,17 @@ import './style.less';
 const guessAsks = [
   '请描述图片中包含的物体',
   '请描述图片包含物体的质量安全问题及检查要点'
+];
+
+const recommendAsks = [
+  {
+    text: '你能帮我做什么？',
+    icon: <ThinkingProblem theme="outline" size="18" fill="#318CFF" />
+  },
+  {
+    text: '简单介绍一下deepseek',
+    icon: <AdobeIllustrate theme="outline" size="18" fill="#318CFF" />
+  },
 ];
 
 const HomePage = () => {
@@ -79,6 +90,19 @@ const HomePage = () => {
       // 处理Enter键的逻辑
       goToNewChatPage();
     }
+  }
+
+  const handleRecommendAsk = (askText) => {
+    history.push({
+      pathname: '/newChat',
+      query: {
+        value: {
+          text: askText,
+          imageList: [],
+          deepseekStatus
+        }
+      }
+    });
   }
 
   useEffect(() => {
@@ -173,6 +197,16 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="recommend-ask">
+        {
+          recommendAsks.map((item) => (
+            <div className="recommend-item" onClick={() => { handleRecommendAsk(item.text) }}>
+              <div className="icon">{item.icon}</div>
+              <span>{item.text}</span>
+            </div>
+          ))
+        }
       </div>
     </div>
   );
