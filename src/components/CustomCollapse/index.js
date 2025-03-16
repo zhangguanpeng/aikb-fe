@@ -12,7 +12,7 @@ import {Up, Down} from '@icon-park/react';
 import './style.less';
 
 const CustomCollapse = (props) => {
-    const {data, isDeepseek} = props;
+    const {data} = props;
     const [collapsed, setCollapsed] = useState(false);
 
     return (
@@ -20,7 +20,7 @@ const CustomCollapse = (props) => {
             <div className="intro">
                 <div>
                     {
-                        !data.thinking && (isDeepseek || data.isDeepseek)? (<CheckCircleOutlined style={{ marginRight: '10px', color: '#318CFF'}} />) : (<BulbOutlined style={{ marginRight: '10px', color: '#318CFF'}} />)
+                        !data.thinking && (data.isDeepseek)? (<CheckCircleOutlined style={{ marginRight: '10px', color: '#318CFF'}} />) : (<BulbOutlined style={{ marginRight: '10px', color: '#318CFF'}} />)
                     }
                     <span>{data.textIntro}</span>
                 </div>
@@ -36,7 +36,7 @@ const CustomCollapse = (props) => {
                 </div>
             </div>
             {
-                !isDeepseek && !data.isDeepseek && data.showCollapse && !collapsed && data.textReference && (
+                !data.isDeepseek && data.showCollapse && !collapsed && data.textReference && (
                     <ul className="reference">
                         {
                             data.textReference.map((item, index) => (
@@ -48,7 +48,7 @@ const CustomCollapse = (props) => {
             }
 
             {
-                (isDeepseek || data.isDeepseek) && data.showCollapse && !collapsed && data.textReference && (
+                (data.isDeepseek) && data.showCollapse && !collapsed && data.textReference && (
                     <ul className="think">
                         <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {data.thinkText}

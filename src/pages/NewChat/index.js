@@ -26,7 +26,7 @@ const NewChatPage = () => {
   const [newChatName, setNewChatName] = useState('');
   // const [toBottomBtnShow, setToBottomBtnShow] = useState(false);
   const [uploadedPics, setUploadedPics] = useState([]);
-  const [deepseekStatus, setDeepseekStatus] = useState(true);
+  const [deepseekStatus, setDeepseekStatus] = useState(false);
   // const newChatStore = useContext(Store);
   const {
     chatData, currentChat, pageLoading, textReference, textReferenceDetailShow, fetchEditChatName, fetchCreateChat, fetchHistoryChatList,
@@ -107,11 +107,19 @@ const NewChatPage = () => {
     newChatStore.chatData = [...chatData];
 
     const params = question ? {
-      content: question,
+      content: {
+        ...question,
+        modelConfig: {
+          deepThink: question.deepseekStatus
+        }
+      }
     } : {
       content: {
         text: askInputValue,
-        imageList: uploadedPics
+        imageList: uploadedPics,
+        modelConfig: {
+          deepThink: deepseekStatus
+        }
       },
     };
 
@@ -121,7 +129,7 @@ const NewChatPage = () => {
 
     let delay = 0;
     let textContent = '';
-    let isThinking = true;
+    let isThinking = false;
     let thinkContent = '';
     let anwserId = 0;
     const chatId = chat ? chat.id : currentChat.id;
@@ -286,8 +294,9 @@ const NewChatPage = () => {
 
   const handleReGenerate = (chatInfo) => {
     getChatStream({
-      text: chatInfo.ask.text,
-      imageList: []
+      text: chatInfo.anwser.askText,
+      imageList: [],
+      deepseekStatus
     });
   }
 
@@ -399,7 +408,8 @@ const NewChatPage = () => {
           onClick={() => {
             getChatStream({
               text: recommendItem,
-              imageList: []
+              imageList: [],
+              deepseekStatus
             });
           }}
         >
@@ -436,7 +446,8 @@ const NewChatPage = () => {
     setUploadedPics([]);
     getChatStream({
       text: askValue,
-      imageList: uploadedPics
+      imageList: uploadedPics,
+      deepseekStatus
     });
   }
 
@@ -455,14 +466,16 @@ const NewChatPage = () => {
 
   if (pageLoading) {
     return (
-      <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
+      // <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
+      <div className="new-chat-page page-position">
         <Spin size="large" style={{ marginTop: '200px' }} />
       </div>
     );
   }
 
   return (
-    <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
+    // <div className={textReferenceDetailShow ? 'new-chat-page page-position-drawer' : 'new-chat-page page-position'}>
+    <div className="new-chat-page page-position">
       <div className="head">
         <div className="chat-name">
           <span className="title">{currentChat.title}</span>

@@ -26,7 +26,7 @@ const recommendAsks = [
 const HomePage = () => {
   const [askInputValue, setAskInputValue] = useState('');
   const [uploadedPics, setUploadedPics] = useState([]);
-  const [deepseekStatus, setDeepseekStatus] = useState(true);
+  const [deepseekStatus, setDeepseekStatus] = useState(false);
   const history = useHistory();
   const homeStore = useContext(Store);
 
