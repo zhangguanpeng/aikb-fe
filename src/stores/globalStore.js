@@ -74,10 +74,11 @@ export default class GlobalStore {
       });
 
       console.log('密码登录 res', res);
-      const { payload = [] } = res.data;
+      const { payload = {} } = res.data;
       const twoDay = 2 * 24 * 60 * 60 * 1000;
       storage.setItem('token', payload.token);
       storage.setItem('expirestamp', dayjs(payload.updatedAt) + twoDay);
+      // console.log('dayjs(payload.updatedAt) + twoDay', dayjs(payload.updatedAt) + twoDay);
       return payload;
 
     } catch (error) {
@@ -100,7 +101,7 @@ export default class GlobalStore {
 
       console.log('验证码登录 res', res);
       const { payload = [] } = res.data;
-      const twoDay = 2 * 24 * 60 * 60 * 60;
+      const twoDay = 2 * 24 * 60 * 60 * 60 * 1000;
       storage.setItem('token', payload.token);
       storage.setItem('expirestamp', dayjs(payload.updatedAt) + twoDay);
       return payload;

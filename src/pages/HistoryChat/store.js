@@ -67,7 +67,7 @@ class HistoryChatStore {
 
       console.log('对话历史top res', res);
       const { payload = [] } = res;
-      // this.pageLoading = false;
+      this.pageLoading = false;
       this.historyTopChatData = payload;
     } catch (error) {
       //
@@ -81,7 +81,7 @@ class HistoryChatStore {
 
     const paramstop = {
       page: 0,
-      size: 10000,
+      size: 1000,
       pinToTop: true
     };
 
@@ -108,13 +108,13 @@ class HistoryChatStore {
     // this.pageLoading = true;
     const params = {
       page: 0,
-      size: 10000,
+      size: 1000,
       sort: 'createdDate,desc',
     };
 
     const paramstop = {
       page: 0,
-      size: 10000,
+      size: 1000,
       pinToTop: true
     };
 
@@ -137,13 +137,13 @@ class HistoryChatStore {
 	async fetchEditChatName(params, id) {
     const listparams = {
       page: 0,
-      size: 10000,
+      size: 1000,
       sort: 'createdDate,desc',
     };
 
     const toplistparams = {
       page: 0,
-      size: 10000,
+      size: 1000,
       pinToTop: true
     };
 		try {

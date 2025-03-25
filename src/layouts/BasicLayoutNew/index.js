@@ -24,15 +24,18 @@ const BasicLayoutNew = ({ route, children }) => {
     history.push(path);
   }
 
-  const token = storage.getItem('token');
-  const expirestamp = storage.getItem('expirestamp');
-  const expired = dayjs().unix() * 1000 > expirestamp;
+  // const token = storage.getItem('token');
+  // const expirestamp = storage.getItem('expirestamp');
+  // const expired = dayjs().unix() * 1000 > Number(expirestamp);
+
+  // console.log('dayjs().unix() * 1000', dayjs().unix() * 1000);
+  // console.log('localstorage expirestamp', typeof expirestamp);
 
   // 判断是否登录或者会话是否过期
-  if (!token || expired) {
-    message.warning('登录已经失效，请重新登录');
-    goToPage('/login');
-  }
+  // if (!token || expired) {
+  //   message.warning('登录已经失效，请重新登录');
+  //   goToPage('/login');
+  // }
 
   console.log(history);
 

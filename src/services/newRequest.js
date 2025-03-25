@@ -86,18 +86,25 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => {
     // 对响应数据做处理，以下根据实际数据结构改动！！...
-    const { code } = response.data || {};
-    if (code === 109 || code === 108) {
+    const { status } = response || {};
+    console.log('response', response)
+    if (status === 401 ) {
       // 请求超时，跳转登录页
-      if (!inError) {
-        message.warning('登录超时，即将跳转到登录页面...');
-        inError = true;
-        setTimeout(() => {
-          message.destroy();
-          window.location.href = '/login';
-          inError = false;
-        }, 2000);
-      }
+      // if (!inError) {
+        
+      //   inError = true;
+      //   setTimeout(() => {
+      //     message.destroy();
+      //     window.location.href = '/login';
+      //     inError = false;
+      //   }, 2000);
+      // }
+      message.warning('登录已过期，即将跳转到登录页面...');
+      setTimeout(() => {
+        window.location.href = '/#/login';
+      }, 1000);
+
+      
 
       return Promise.resolve({});
     } else if (response) {

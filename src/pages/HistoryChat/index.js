@@ -43,7 +43,7 @@ const HistoryChatPage = () => {
   const getHistoryChatList = () => {
     const params = {
       page: 0,
-      size: 10000,
+      size: 1000,
       sort: 'createdDate,desc',
     };
     fetchHistoryChatList(params);
@@ -52,7 +52,7 @@ const HistoryChatPage = () => {
   const getHistoryTopChatList = () => {
     const params = {
       page: 0,
-      size: 10000,
+      size: 1000,
       pinToTop: true
     };
     fetchHistoryTopChatList(params);
